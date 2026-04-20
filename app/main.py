@@ -23,6 +23,8 @@ def main():
                 print('data is', data)
                 data = repr(data)
                 print('raw data is',data)
+                rawwords = repr(data.decode("utf-8"))
+                print('raw words are', rawwords)
 #                outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
 #                print('outline)
                 outline=''

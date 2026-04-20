@@ -3,28 +3,36 @@ import threading
 
 
 def main():
-    def respParse(str):
-        if str[0] == '+': #simple string
+    def respIn(str):
+        prefix = chr(str[0]) #chr -- converts single byte char to actual char
+        if prefix == '+': #simple string
             return
-        elif str[0] =='-': #error
+        elif prefix =='-': #error
             return
-        elif str[0] ==':': #int
+        elif prefix ==':': #int
             return
-        elif str[0] =='$': #bulk string
+        elif prefix =='$': #bulk string
             return
-        elif str[0] =='*': #array
-            
-            return
+        elif prefix =='*': #array
+            res = []
+            lines = str.split('b\r\n')
+            count = int(lines[0][1:])
+            for i in range(count):
+                res.append(lines[2*i+2].decode("utf-8"))
+        return res
 
     def respond(conn):
         while True:
             data = conn.recv(1024)
             if data:
-                print('data is', data)
-                parts = data.split(b'\r\n')
-                print('split data is',parts)
-                outline=''
-                conn.send(outline.encode("utf-8"))
+                inline = respIn(data)
+                if type(inline) == list:
+                    outline = b'$' + str(len(inline)).encode("utf-8")
+                    for i in inline:
+                        outline += str(i).encode("utf-8")
+                    outline += b'\r\n'
+                print(outline)
+                conn.send(outline)
     
             #conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 

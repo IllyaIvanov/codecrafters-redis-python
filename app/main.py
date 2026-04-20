@@ -7,7 +7,7 @@ def main():
         while True:
             data = conn.recv(1024)
             data = data.decode("utf-8")
-            outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
+            #outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
             print(outline)
             outline = outline.encode("utf-8")
             conn.send(outline)

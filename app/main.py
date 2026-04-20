@@ -5,15 +5,16 @@ import threading
 def main():
     def respond(conn):
         data = conn.recv(1024)
-        if not data:
-            break
-        conn.sendall(b"+PONG\r\n")
+        if data:
+            conn.sendall(b"+PONG\r\n")
+        else:
+            return
 
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
     while True:
         connection, _ = server_socket.accept() # _ is used because .accept() returns two values
-        if not connection:
+        if not connection: 
             break
         thr = threading.Thread(target=respond, args=(connection,))
         thr.start()

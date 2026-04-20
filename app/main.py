@@ -15,7 +15,7 @@ def main():
         if connection:
             thr = threading.Thread(target=respond, args=(connection))
             threads.append(thr)
-            thr.start
+            thr.start()
         
         #for curcon in connections:
         #    data = curcon.recv(1024)

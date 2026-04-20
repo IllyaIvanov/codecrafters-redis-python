@@ -15,7 +15,7 @@ def main():
 
         connection, _ = server_socket.accept() # _ is used because .accept() returns two values
         connections.append(connection)
-        for curcon in connection:
+        for curcon in connections:
             data = curcon.recv(1024)
             if data:
                 curcon.sendall(b"+PONG\r\n")

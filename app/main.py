@@ -3,8 +3,8 @@ import threading
 
 
 def main():
-    def respIn(str):
-        prefix = chr(str[0]) #chr -- converts single byte char to actual char
+    def respIn(inline):
+        prefix = chr(inline[0]) #chr -- converts single byte char to actual char
         if prefix == '+': #simple string
             return
         elif prefix =='-': #error

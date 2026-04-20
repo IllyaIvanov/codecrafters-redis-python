@@ -7,8 +7,9 @@ def main():
         while True:
             data = conn.recv(1024)
             if data:
-                outline = data.decode("utf-8")
-                #outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
+                data = data.decode("utf-8")
+                outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
+                print(outline)
                 conn.send(outline.encode("utf-8"))
     
             #conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function

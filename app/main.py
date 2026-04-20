@@ -5,10 +5,9 @@ import threading
 def main():
     def respond(conn):
         data = conn.recv(1024)
-        if data:
-            conn.sendall(b"+PONG\r\n")
-        else:
+        if not data:
             return
+        conn.sendall(b"+PONG\r\n")
 
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 

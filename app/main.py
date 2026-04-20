@@ -11,6 +11,7 @@ def main():
                 print('data is', data)
 #                outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
 #                print('outline)
+                outline=''
                 conn.send(outline.encode("utf-8"))
     
             #conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function

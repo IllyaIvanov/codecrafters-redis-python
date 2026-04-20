@@ -30,8 +30,9 @@ def main():
                 if type(inline) == list:
                     outline = b'$' + str(len(inline)).encode("utf-8") +b'\r\n'
                     for i in inline:
-                        outline += str(i).encode("utf-8") 
-                        outline += b'\r\n'
+                        if i != b'ECHO':
+                            outline += str(i).encode("utf-8") 
+                            outline += b'\r\n'
                 print(outline)
                 conn.send(outline)
     

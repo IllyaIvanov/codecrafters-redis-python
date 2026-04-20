@@ -9,8 +9,7 @@ def main():
             if data:
                 outline = data.decode("utf-8")
                 #outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
-                outline = outline.encode("utf-8")
-                conn.send(outline)
+                conn.send(outline.encode("utf-8"))
     
             #conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 

@@ -16,6 +16,7 @@ def main():
         if data:
             connection.sendall(b"+PONG\r\n")
             data = None
+            break
 
 
 if __name__ == "__main__":

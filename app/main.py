@@ -10,12 +10,15 @@ def main():
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     #connection, shm = server_socket.accept() # _ is used because .accept() returns two values
     #print(connection, shm) #the .accept() doesn't happen on it's own, makes sense
+    connections = []
     while True:
+
         connection, _ = server_socket.accept() # _ is used because .accept() returns two values
-        data = connection.recv(1024)
-        if data:
-            connection.sendall(b"+PONG\r\n")
-        connection = None
+        connections.append(connection)
+        for curcon in connection:
+            data = curcon.recv(1024)
+            if data:
+                curcon.sendall(b"+PONG\r\n")
 
 
 if __name__ == "__main__":

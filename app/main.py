@@ -13,7 +13,7 @@ def main():
     while True:
         connection, _ = server_socket.accept() # _ is used because .accept() returns two values
         if connection:
-            thr = threading.Thread(target=respond, args=(connection))
+            thr = threading.Thread(target=respond, args=(connection,))
             threads.append(thr)
             thr.start()
         

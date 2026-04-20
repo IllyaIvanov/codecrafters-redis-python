@@ -19,9 +19,9 @@ def main():
         while True:
             data = conn.recv(1024)
             if data:
+                print('data is', data)
                 rawwords = repr(data.decode("utf-8"))
                 #data = data.decode("utf-8")
-                print('data is', data)
                 data = repr(data)
                 print('raw data is',data)
                 print('raw words are', rawwords)

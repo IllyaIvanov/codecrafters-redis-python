@@ -6,7 +6,7 @@ def main():
     def respond(conn):
         while True:
             data = conn.recv(1024)
-            data = data.decode("utf-8")
+            outline = data.decode("utf-8")
             #outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
             print(outline)
             outline = outline.encode("utf-8")

@@ -13,6 +13,7 @@ def main():
         elif str[0] =='$': #bulk string
             return
         elif str[0] =='*': #array
+            
             return
 
     def respond(conn):
@@ -20,13 +21,8 @@ def main():
             data = conn.recv(1024)
             if data:
                 print('data is', data)
-                rawwords = repr(data.decode("utf-8"))
-                #data = data.decode("utf-8")
-                data = repr(data)
-                print('raw data is',data)
-                print('raw words are', rawwords)
-#                outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
-#                print('outline)
+                parts = data.split(b'\r\n')
+                print('split data is',parts)
                 outline=''
                 conn.send(outline.encode("utf-8"))
     

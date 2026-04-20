@@ -15,6 +15,7 @@ def main():
         data = connection.recv(1024)
         if data:
             connection.sendall(b"+PONG\r\n")
+        connection = None
 
 
 if __name__ == "__main__":

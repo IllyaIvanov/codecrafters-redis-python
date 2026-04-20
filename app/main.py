@@ -12,9 +12,9 @@ def main():
     #print(connection, shm) #the .accept() doesn't happen on it's own, makes sense
     connections = []
     while True:
-
         connection, _ = server_socket.accept() # _ is used because .accept() returns two values
         connections.append(connection)
+        print(connection)
         for curcon in connections:
             data = curcon.recv(1024)
             if data:

@@ -3,12 +3,26 @@ import threading
 
 
 def main():
+    def respParse(str):
+        if str[0] == '+': #simple string
+            return
+        elif str[0] =='-': #error
+            return
+        elif str[0] ==':': #int
+            return
+        elif str[0] =='$': #bulk string
+            return
+        elif str[0] =='*': #array
+            return
+
     def respond(conn):
         while True:
             data = conn.recv(1024)
             if data:
                 #data = data.decode("utf-8")
                 print('data is', data)
+                data = repr(data)
+                print('raw data is',data)
 #                outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
 #                print('outline)
                 outline=''

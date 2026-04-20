@@ -6,7 +6,13 @@ def main():
     def respond(conn):
         while True:
             data = conn.recv(1024)
-            conn.sendall(b"+PONG\r\n")
+            data = data.decode("utf-8")
+            outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
+            print(outline)
+            #outline = outline.encode("utf-8")
+            conn.send(outline)
+
+            #conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 

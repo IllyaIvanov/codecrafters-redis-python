@@ -19,11 +19,11 @@ def main():
         while True:
             data = conn.recv(1024)
             if data:
+                rawwords = repr(data.decode("utf-8"))
                 #data = data.decode("utf-8")
                 print('data is', data)
                 data = repr(data)
                 print('raw data is',data)
-                rawwords = repr(data.decode("utf-8"))
                 print('raw words are', rawwords)
 #                outline = str(len(data)) + '\\r\\n' + data +'\\r\\n'
 #                print('outline)

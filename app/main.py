@@ -15,7 +15,8 @@ def main():
             return
         elif prefix =='*': #array
             res = []
-            lines = str.split('b\r\n')
+            lines = str.split(b'\r\n')
+            print(lines)
             count = int(lines[0][1:])
             for i in range(count):
                 res.append(lines[2*i+2].decode("utf-8"))

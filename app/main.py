@@ -40,7 +40,7 @@ def main():
                         print('i is', i)
                         if i != 'ECHO':
                             curStr = str(i).encode("utf-8")
-                            outline += str(len(curStr))
+                            outline += str(len(curStr)).encode("utf-8")
                             outline += b'\r\n'
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'

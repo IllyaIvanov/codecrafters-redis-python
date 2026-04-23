@@ -31,10 +31,10 @@ def main():
                 print(f'data is {data}')
                 inline = respIn(data)
                 if type(inline) == list:
-                    cmd = inline[0]
+                    cmd = inline[0].lower()
                     print('command is', cmd)
 
-                    if cmd == 'ECHO':
+                    if cmd == 'echo':
                         outline = b'$' 
                         print('command is echo, outline starts with', outline)
 
@@ -45,9 +45,9 @@ def main():
                             outline += b'\r\n'
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'
-                    elif cmd == 'PING':
+                    elif cmd == 'ping':
                         print('command is ping')
-                        outline = b'PONG'
+                        outline = b'+PONG\r\n'
                 else:
                     outline = data
                 print(outline) 

@@ -33,14 +33,17 @@ def main():
                 print('inline type is', type(inline))
                 print('inline is', inline)
                 if type(inline) == list:
-                    outline = b'$' + str(len(inline)).encode("utf-8") +b'\r\n'
+                    outline = b'$' 
                     print('outline starts with', outline)
 
                     for i in inline:
                         print('i is', i)
-                        if i != b'ECHO':
+                        if i != ECHO:
+                            outline += len(str(i).encode("utf-8"))
+                            outline += b'\r\n'
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'
+
                 else: 
                     print('inline is', inline, 'it\'s type is', type(inline))
                     outline = b'something that isn\'t a list'

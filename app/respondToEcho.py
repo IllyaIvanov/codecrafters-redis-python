@@ -31,8 +31,8 @@ def main():
                 print(f'data is {data}')
                 inline = respIn(data)
                 cmd = inline[0]
-                if cmd == 'ECHO':
-                    if type(inline) == list:
+                if type(inline) == list:
+                    if cmd == 'ECHO':
                         outline = b'$' 
                         print('outline starts with', outline)
 
@@ -45,8 +45,8 @@ def main():
                                 outline += b'\r\n'
                                 outline += str(i).encode("utf-8") 
                                 outline += b'\r\n'
-                elif cmd == 'PING':
-                    outline = b'PONG'
+                    elif cmd == 'PING':
+                        outline = b'PONG'
                 print(outline) 
                 conn.send(outline)
     

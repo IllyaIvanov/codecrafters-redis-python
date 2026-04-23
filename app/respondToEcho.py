@@ -30,8 +30,9 @@ def main():
             if data:
                 print(f'data is {data}')
                 inline = respIn(data)
-                cmd = inline[0]
                 if type(inline) == list:
+                    cmd = inline[0]
+                    print('command is', cmd)
                     if cmd == 'ECHO':
                         outline = b'$' 
                         print('outline starts with', outline)

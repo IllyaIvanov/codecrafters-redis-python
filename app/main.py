@@ -5,6 +5,7 @@ import threading
 def main():
     def respIn(inline):
         prefix = chr(inline[0]) #chr -- converts single byte char to actual char
+        res = None
         if prefix == '+': #simple string
             return
         elif prefix =='-': #error
@@ -23,17 +24,27 @@ def main():
         return res
 
     def respond(conn):
+        outline = None
         while True:
             data = conn.recv(1024)
             if data:
+                print(f'data is {data}')
                 inline = respIn(data)
+                print('inline type is', type(inline))
+                print('inline is', inline)
                 if type(inline) == list:
                     outline = b'$' + str(len(inline)).encode("utf-8") +b'\r\n'
+                    print('outline starts with', outline)
+
                     for i in inline:
+                        print('i is', i)
                         if i != b'ECHO':
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'
-                print(outline)
+                else: 
+                    print('inline is', inline, 'it\'s type is', type(inline))
+                    outline = b'something that isn\'t a list'
+                print(outline) 
                 conn.send(outline)
     
             #conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function

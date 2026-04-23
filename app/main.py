@@ -39,7 +39,8 @@ def main():
                     for i in inline:
                         print('i is', i)
                         if i != 'ECHO':
-                            outline += len(str(i).encode("utf-8"))
+                            curStr = str(i).encode("utf-8")
+                            outline += str(len(curStr))
                             outline += b'\r\n'
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'

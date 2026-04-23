@@ -30,24 +30,26 @@ def main():
             if data:
                 print(f'data is {data}')
                 inline = respIn(data)
-                print('inline type is', type(inline))
-                print('inline is', inline)
                 if type(inline) == list:
-                    outline = b'$' 
-                    print('outline starts with', outline)
+                    cmd = inline[0]
+                    print('command is', cmd)
 
-                    for i in inline:
-                        print('i is', i)
-                        if i != 'ECHO':
+                    if cmd == 'ECHO':
+                        outline = b'$' 
+                        print('command is echo, outline starts with', outline)
+
+                        for i in inline[1:]:
+                            print('i is', i)
                             curStr = str(i).encode("utf-8")
                             outline += str(len(curStr)).encode("utf-8")
                             outline += b'\r\n'
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'
-
-                else: 
-                    print('inline is', inline, 'it\'s type is', type(inline))
-                    outline = b'something that isn\'t a list'
+                    elif cmd == 'PING':
+                        print('command is ping')
+                        outline = b'PONG'
+                else:
+                    outline = data
                 print(outline) 
                 conn.send(outline)
     

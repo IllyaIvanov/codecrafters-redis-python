@@ -33,21 +33,23 @@ def main():
                 if type(inline) == list:
                     cmd = inline[0]
                     print('command is', cmd)
+
                     if cmd == 'ECHO':
                         outline = b'$' 
-                        print('outline starts with', outline)
+                        print('command is echo, outline starts with', outline)
 
-                        for i in inline:
+                        for i in inline[1:]:
                             print('i is', i)
-
-                            if i != 'ECHO':
-                                curStr = str(i).encode("utf-8")
-                                outline += str(len(curStr)).encode("utf-8")
-                                outline += b'\r\n'
-                                outline += str(i).encode("utf-8") 
-                                outline += b'\r\n'
+                            curStr = str(i).encode("utf-8")
+                            outline += str(len(curStr)).encode("utf-8")
+                            outline += b'\r\n'
+                            outline += str(i).encode("utf-8") 
+                            outline += b'\r\n'
                     elif cmd == 'PING':
+                        print('command is ping')
                         outline = b'PONG'
+                else:
+                    outline = data
                 print(outline) 
                 conn.send(outline)
     

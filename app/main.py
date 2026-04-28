@@ -65,6 +65,7 @@ def main():
                                 exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
                             elif oName == 'ex':
                                 exps[vName] = datetime.now() + timedelta(seconds = oVal)
+                            print('will expire at', exps[vName])
                         
 
                         varDict[vName] = vVal

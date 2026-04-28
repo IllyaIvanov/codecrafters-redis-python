@@ -66,7 +66,7 @@ def main():
                         if vVal != None:
                             vOut = str(vVal)
                             l = str(len(vOut))
-                            outline = b'$' + b'l' + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
+                            outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
                         else: 
                             outline = b'$-1\r\n'
                 else:

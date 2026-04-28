@@ -33,6 +33,7 @@ def main():
                 if type(inline) == list:
                     cmd = inline[0].lower()
                     print('command is', cmd)
+                    vardict = {}
 
                     if cmd == 'echo':
                         outline = b'$' 
@@ -48,6 +49,8 @@ def main():
                     elif cmd == 'ping':
                         print('command is ping')
                         outline = b'+PONG\r\n'
+                    elif cmd == 'set':
+                        return
                 else:
                     outline = data
                 print(outline) 

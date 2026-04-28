@@ -58,13 +58,15 @@ def main():
                         print(f'set {vName} to {vVal}')
                     elif cmd == 'get':
                         vName = inline[1]
-                        outline = b'$-1\r\n'
+                        print('vName is', vName)
                         vVal = varDict.get(vName)
                         print('vVal is', vVal)
                         if vVal != None:
                             vOut = str(vVal)
                             l = str(len(vOut))
                             outline = b'$' + b'l' + b'\r\n' + vOut.encode(utf-8) + b'\r\n'
+                        else: 
+                            outline = b'$-1\r\n'
                 else:
                     outline = data
                 print(outline) 

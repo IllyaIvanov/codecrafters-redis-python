@@ -33,7 +33,7 @@ def main():
                 if type(inline) == list:
                     cmd = inline[0].lower()
                     print('command is', cmd)
-                    vardict = {}
+                    varDict = {}
 
                     if cmd == 'echo':
                         outline = b'$' 
@@ -50,7 +50,18 @@ def main():
                         print('command is ping')
                         outline = b'+PONG\r\n'
                     elif cmd == 'set':
-                        return
+                        outline =b'+OK\r\n' 
+                        vName = inline[1]
+                        vVal = inline[2]
+                        varDict[vName] = [vVal]
+                    elif cmd == 'get':
+                        vName = inline[1]
+                        outline = b'$-1\r\n'
+                        vVal = varDict.get(vName)
+                        if vVal != None:
+                            vOut = str(vVal)
+                            l = str(len(vOut))
+                            outline = b'$' + b'l' + b'\r\n' + vOut.encode(utf-8) + b'\r\n'
                 else:
                     outline = data
                 print(outline) 

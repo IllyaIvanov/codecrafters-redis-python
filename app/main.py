@@ -54,8 +54,8 @@ def main():
                         outline =b'+OK\r\n' 
                         vName = inline[1]
                         vVal = inline[2]
-                        varDict[vName] = [vVal]
-                        print(f'set {vName} to {vVal}')
+                        varDict[vName] = vVal
+                        print(f'set {vName} to {varDict.get(vName)}')
                     elif cmd == 'get':
                         print('command is get')
                         print('vardict is', varDict)

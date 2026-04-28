@@ -63,7 +63,7 @@ def main():
                             oVal = int(inline[4])
                             if oName == 'px':
                                 exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
-                            elif oName == 'ex'
+                            elif oName == 'ex':
                                 exps[vName] = datetime.now() + timedelta(seconds = oVal)
                         
 
@@ -77,7 +77,7 @@ def main():
                         vVal = varDict.get(vName)
                         print('vVal is', vVal)
                         if vVal != None:
-                            if not exps.get(vName) or (exps.get(vName) and exps[vName]  datetime.now):
+                            if not exps.get(vName) or (exps.get(vName) and exps[vName] < datetime.now()):
                                 vOut = str(vVal)
                                 l = str(len(vOut))
                                 outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'

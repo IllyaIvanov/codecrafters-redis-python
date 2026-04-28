@@ -61,6 +61,7 @@ def main():
                         if inline[3] and inline[4]: # optional expiry parameters
                             oName = inline[3]
                             oVal = int(inline[4])
+                            print('oName, oVal', oName, oVal)
                             if oName == 'px':
                                 exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
                             elif oName == 'ex':

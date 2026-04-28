@@ -27,13 +27,14 @@ def main():
         outline = None
         while True:
             data = conn.recv(1024)
+            varDict = {}
             if data:
                 print(f'data is {data}')
                 inline = respIn(data)
+                print('inline is', inline)
                 if type(inline) == list:
                     cmd = inline[0].lower()
                     print('command is', cmd)
-                    varDict = {}
 
                     if cmd == 'echo':
                         outline = b'$' 

@@ -1,5 +1,6 @@
 import socket  # noqa: F401
 import threading
+from datetime import datetime, timedelta
 
 
 def main():
@@ -26,9 +27,11 @@ def main():
     def respond(conn):
         outline = None
         varDict = {}
+        exps = {}
         while True:
             data = conn.recv(1024)
             if data:
+                timeIn = timedate.now()
                 #print(f'data is {data}')
                 inline = respIn(data)
                 print('inline is', inline)
@@ -54,6 +57,14 @@ def main():
                         outline =b'+OK\r\n' 
                         vName = inline[1]
                         vVal = inline[2]
+
+                        if inline[3] and inline[4]: # optional expiry parameters
+                            oName = inline[3]
+                            oVal = int(inline[4])
+                            if oName == 'px':
+                                exps[vName] = timedate.now + timedelta(microseconds = (oVal * 1000))
+                        
+
                         varDict[vName] = vVal
                         print(f'set {vName} to {varDict.get(vName)}')
                         print('varDict is', varDict)
@@ -64,9 +75,13 @@ def main():
                         vVal = varDict.get(vName)
                         print('vVal is', vVal)
                         if vVal != None:
-                            vOut = str(vVal)
-                            l = str(len(vOut))
-                            outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
+                            if not exps.get(vName) or (exps.get(vName) and exps[vName] > datetime.now):
+                                vOut = str(vVal)
+                                l = str(len(vOut))
+                                outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
+                            else:
+                                outline = b'$-1\r\n'
+
                         else: 
                             outline = b'$-1\r\n'
                 else:

@@ -62,11 +62,13 @@ def main():
                             oName = inline[3]
                             oVal = int(inline[4])
                             print('oName, oVal', oName, oVal)
+
                             if oName == 'px':
                                 exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
+                                print('will expire at', exps[vName])
                             elif oName == 'ex':
                                 exps[vName] = datetime.now() + timedelta(seconds = oVal)
-                            print('will expire at', exps[vName])
+                                print('will expire at', exps[vName])
                         
 
                         varDict[vName] = vVal

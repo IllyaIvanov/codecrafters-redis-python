@@ -17,7 +17,7 @@ def main():
         elif prefix =='*': #array
             res = []
             lines = inline.split(b'\r\n')
-            print(lines)
+            #print(lines)
             count = int(lines[0][1:])
             for i in range(count):
                 res.append(lines[2*i+2].decode("utf-8"))
@@ -29,7 +29,7 @@ def main():
             data = conn.recv(1024)
             varDict = {}
             if data:
-                print(f'data is {data}')
+                #print(f'data is {data}')
                 inline = respIn(data)
                 print('inline is', inline)
                 if type(inline) == list:
@@ -38,7 +38,7 @@ def main():
 
                     if cmd == 'echo':
                         outline = b'$' 
-                        print('command is echo, outline starts with', outline)
+                        #print('command is echo, outline starts with', outline)
 
                         for i in inline[1:]:
                             print('i is', i)
@@ -48,17 +48,19 @@ def main():
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'
                     elif cmd == 'ping':
-                        print('command is ping')
+                        #print('command is ping')
                         outline = b'+PONG\r\n'
                     elif cmd == 'set':
                         outline =b'+OK\r\n' 
                         vName = inline[1]
                         vVal = inline[2]
                         varDict[vName] = [vVal]
+                        print(f'set {vName} to {vVal}')
                     elif cmd == 'get':
                         vName = inline[1]
                         outline = b'$-1\r\n'
                         vVal = varDict.get(vName)
+                        print('vVal is', vVal)
                         if vVal != None:
                             vOut = str(vVal)
                             l = str(len(vOut))

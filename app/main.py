@@ -81,13 +81,13 @@ def main():
                         vVal = varDict.get(vName)
                         print('vVal is', vVal)
                         if vVal != None:
-                            if not exps.get(vName) or (exps.get(vName) and exps[vName] < datetime.now()):
+                            if  exps.get(vName) and exps.get(vName) < datetime.now():
+                                print(f'key {vName} expired')
+                                outline = b'$-1\r\n'
+                            else:
                                 vOut = str(vVal)
                                 l = str(len(vOut))
                                 outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
-                            else:
-                                outline = b'$-1\r\n'
-
                         else: 
                             outline = b'$-1\r\n'
                 else:

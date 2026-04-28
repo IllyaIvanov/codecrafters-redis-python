@@ -59,7 +59,7 @@ def main():
                         vVal = inline[2]
 
                         if inline[3] and inline[4]: # optional expiry parameters
-                            oName = inline[3]
+                            oName = inline[3].lower()
                             oVal = int(inline[4])
                             print('oName, oVal', oName, oVal)
 

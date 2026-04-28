@@ -25,9 +25,9 @@ def main():
 
     def respond(conn):
         outline = None
+        varDict = {}
         while True:
             data = conn.recv(1024)
-            varDict = {}
             if data:
                 #print(f'data is {data}')
                 inline = respIn(data)

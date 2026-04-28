@@ -57,6 +57,8 @@ def main():
                         varDict[vName] = [vVal]
                         print(f'set {vName} to {vVal}')
                     elif cmd == 'get':
+                        print('command is get')
+                        print('vardict is', varDict)
                         vName = inline[1]
                         print('vName is', vName)
                         vVal = varDict.get(vName)

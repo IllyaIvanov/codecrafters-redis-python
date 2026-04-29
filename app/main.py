@@ -58,7 +58,8 @@ def main():
                         vName = inline[1]
                         vVal = inline[2]
                         if len(inline) > 3:
-                        if inline[3] and inline[4]: # optional expiry parameters
+                        if inline[3] and inline[4]: 
+                            # optional expiry parameters
                             oName = inline[3].lower()
                             oVal = int(inline[4])
                             print('oName, oVal', oName, oVal)
@@ -90,6 +91,11 @@ def main():
                                 outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
                         else: 
                             outline = b'$-1\r\n'
+                    elif cmd == 'rpush':
+                        varDict [inline[1]] = [int(inline[2])]
+                        l = len(varDict[inline[1]])
+                        outline = b':' + str(l).encode("utf-8") + b'\r\n\'
+
                 else:
                     outline = data
                 print(outline) 

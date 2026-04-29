@@ -114,6 +114,20 @@ def main():
                         l = len(varDict[listName])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
+                    elif cmd == 'lpush':
+                        listName = inline[1] #making the list we add
+                        if len(inline) == 3:
+                            listExtra = [inline[2]]
+                        else:
+                            listExtra = inline[:1:-1]
+                        if varDict.get(listName) != None:
+                            varDict[listName] = listExtra + varDict[listName] #adding the new part to the existing list
+                        else:
+                            varDict[listName] = listExtra #if no list, make it
+                        l = len(varDict[listName])
+                        outline = b':' + str(l).encode("utf-8") + b'\r\n'
+ 
+
                     elif cmd == 'lrange':
                         listName = inline[1]
                         if varDict.get(listName) == None:
@@ -132,6 +146,7 @@ def main():
                             print('inds are', inds)
                             tList = tList[inds[0]:inds[1]+1]
                             outline = encodeArray(tList)
+
     
                 else:
                     outline = data

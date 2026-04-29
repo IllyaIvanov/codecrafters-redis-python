@@ -151,18 +151,23 @@ def main():
                         #so that I can just refer lpop here
                         listName = inline[1] #todo just compile it together? if received a list, then listName is ...
                         timeOut = int(inline[2])
+                        print('timeout is', timeOut)
                         tExp = time.time() + timeOut
-                        #delT = timeOut/10
+
                         delT = 0.2  
+                        if timeOut: 
+                            delT = timeOut/10
 
                         popd = False
                         chP = time.time()
+                        print('checkpoint', chP)
                         cT = 0
-                        while timeOut == 0 or time.time() < tExp:
-                            if timeOut != 0 and time.time()-chP > delT:
+                        while timeOut == 0:
+                        #while timeOut == 0 or time.time() < tExp:
+                            if time.time() - chP > delT:
                                 chp = time.time()
-                                print(f'checkpoint {chp}, {cT}/10')
-                            if varDict.get(listName):
+                                print(f'checkpoint {chp}, {cT}')
+                            if varDict.get(listName) != []:
                                 print(f'key {listName} is now {varDict[listname]} ')
                                 popd = True
                                 break

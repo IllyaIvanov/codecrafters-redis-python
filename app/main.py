@@ -152,7 +152,8 @@ def main():
                         listName = inline[1] #todo just compile it together? if received a list, then listName is ...
                         timeOut = int(inline[2])
                         tExp = time.time() + timeOut
-                        delT = timeOut/10
+                        #delT = timeOut/10
+                        delT = 0.2  
 
                         popd = False
                         chP = time.time()

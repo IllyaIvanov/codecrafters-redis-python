@@ -40,7 +40,7 @@ def encode_out(toSend):
         body = toSend.encode("utf-8")
     elif isinstance(toSend, list):
         if not toSend:
-            return b'0\r\n'
+            return b'*0\r\n'
         header = b'*' + str(len(toSend)).encode("utf-8") + header 
         tail = b''
         for i in toSend:

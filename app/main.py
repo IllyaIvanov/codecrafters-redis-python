@@ -116,11 +116,14 @@ def main():
 
                     elif cmd == 'lrange':
                         listName = inline[1]
-                        ind1 = int(inline[2])
-                        ind2 = int(inline[3])
-                        tList = varDict.get(listName)[ind1:ind2+1]
-                        outline = encodeArray(tList)
-
+                        if varDict.get(listName) == None:
+                            outline = b'*0\r\n'
+                        else:
+                            ind1 = int(inline[2])
+                            ind2 = int(inline[3])
+                            tList = varDict.get(listName)[ind1:ind2+1]
+                            outline = encodeArray(tList)
+    
                 else:
                     outline = data
                 print(outline) 

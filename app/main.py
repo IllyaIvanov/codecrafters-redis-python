@@ -95,7 +95,7 @@ def main():
                     elif cmd == 'rpush':
                         
                         listName = inline[1] #making the list we add
-                        if len(inline) = 3:
+                        if len(inline) == 3:
                             listExtra = [inline[2]]
                         else:
                             listExtra = inline[2:]

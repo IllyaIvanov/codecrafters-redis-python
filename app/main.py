@@ -6,28 +6,9 @@ import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
 
+from respParse import decode_resp, encode_out
 
 def main():
-    def respIn(inline):
-        prefix = chr(inline[0]) #chr -- converts single byte char to actual char
-        res = None
-        if prefix == '+': #simple string
-            return
-        elif prefix =='-': #error
-            return
-        elif prefix ==':': #int
-            return
-        elif prefix =='$': #bulk string
-            return
-        elif prefix =='*': #array
-            res = []
-            lines = inline.split(b'\r\n')
-            #print(lines)
-            count = int(lines[0][1:])
-            for i in range(count):
-                res.append(lines[2*i+2].decode("utf-8"))
-        return res
-
     def encodeArray(arra):
         res = b'*' + str(len(arra)).encode("utf-8") + b'\r\n'
         for i in arra: 

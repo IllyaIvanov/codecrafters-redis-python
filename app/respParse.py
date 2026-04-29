@@ -2,6 +2,62 @@ def decode_resp(data):
     # original -- -//- (data: str) -> List[str]:
     #why specify the data type? why specify output type? why "List"?
     return
+def decode_resp(inline):
+    prefix = chr(inline[0]) #chr -- converts single byte char to actual char
+    res = None
+    if prefix == '+': #simple string
+        return inline.decode("utf-8")[1:-4]
+    elif prefix =='-': #error
+        return inline.decode("utf-8")[1:-4]
+    elif prefix ==':': #int
+        if inline[1] == '+': 
+            return int(inline.decode("utf-8")[2:-4])
+        else:
+            return int(inline.decode("utf-8")[1:-4])
+    elif prefix =='$': #bulk string
+        inStr = inline.split(b'\r\n')[1]
+        if inStr == b'':
+            return ''
+        else:
+            return inStr[1].decode("utf-8")
+    elif prefix =='*': #array
+        res = []
+        lines = inline.split(b'\r\n')
+        #print(lines)
+        count = int(lines[0][1:])
+        for i in range(count):
+            res.append(lines[2*i+2].decode("utf-8"))
+        return res
 
-def encode_out(outline):
-    return
+def enSimple(toSend):
+    return b'+' + toSend.encode("utf-8") + b'\r\n'
+
+def encode_out(toSend):
+    body = b''
+    header = tail = b'\r\n'
+    if isinstance(toSend, int): 
+        header = b':' + header
+        body = str(toSend).encode("utf-8") 
+    elif isinstance(toSend, str): #bulk string
+        header = b'$' + header
+        body = str(len(toSend)).encode("utf-8") + b'\r\n' + \
+               toSend.encode("utf-8")
+    elif isinstance(toSend, list):
+        if not toSend:
+            return b'0\r\n'
+        header = b'*' + str(len(toSend)).encode("utf-8") + header 
+        tail = b''
+        for i in toSend:
+            body += str(len(i)).encode("utf-8") + b'\r\n' + \
+                str(i).encode("utf-8") + b'\r\n'
+
+    print(f'header {header}, body {body}, tail {tail}')
+    return header + body + tail
+
+line = b'*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n'
+
+d = decode_resp(line)
+print(d)
+
+e = encode_out(d)
+print(e)

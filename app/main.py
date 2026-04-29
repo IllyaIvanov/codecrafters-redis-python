@@ -6,7 +6,7 @@ import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
 
-from modls.respParse import decode_resp, encode_out
+import app.respParse
 
 def main():
     def respond(conn):

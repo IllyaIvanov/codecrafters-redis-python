@@ -138,7 +138,7 @@ def main():
                             return b'-1\r\n'
                         k = 1
                         if inline[2]:
-                            k = inline[2]
+                            k = int(inline[2])
                         if len(varDict.get(listName)) <= k:
                             outline = app.respParse.encode_out(varDict[listName])
                             varDict[listName] = []

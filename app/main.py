@@ -93,7 +93,12 @@ def main():
                         else: 
                             outline = b'$-1\r\n'
                     elif cmd == 'rpush':
-                        varDict [inline[1]] = [inline[2]]
+                        listName = inline[1]
+                        listEl = inline[2]
+                        if varDict.get(listName) != None:
+                            varDict[listName].append(listEl)
+                        else:
+                            varDict [inline[1]] = [inline[2]]
                         l = len(varDict[inline[1]])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
 

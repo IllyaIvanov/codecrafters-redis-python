@@ -117,7 +117,7 @@ def main():
                             for i in range(2):
                                 if inds[i] + n < 0:
                                     inds[i] = 0
-                                elif inds[i] < 0:
+                                elif inds[i] < -1:
                                     inds[i] = n + inds[i]
                             print('inds are', inds)
                             tList = tList[inds[0]:inds[1]+1]

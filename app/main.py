@@ -153,15 +153,15 @@ def main():
                         #so that I can just refer lpop here
                         listName = inline[1] #todo just compile it together? if received a list, then listName is ...
                         timeOut = int(inline[2])
-                        t1 = time.time()
+                        tExp = time.time() + timeOut
+
                         popd = False
-                        while timeOut == 0 or time.time() < timeOut + t1: 
-                            print(t1+timeOut - time.time(),'seconds left')
-                            if varDict.get(listName) != None:
+                        while timeOut == 0 or time.time() < tExp:
+                            if varDict.get(listName) != {}:
+                                print('key got added')
                                 popd = True
                                 break
                         if popd:
-
                             outline = app.respParse.encode_out([listName, \
                                                                  varDict[listName][0]])
                             varDict[listName] =  varDict[listName][1:]

@@ -121,7 +121,7 @@ def main():
                                     inds[i] = n + inds[i]
                             print('inds are', inds)
                             tList = tList[inds[0]:inds[1]+1]
-                            outline = encodeArray(tList)
+                            outline = app.respParse.encode_out(tList)
                     
                     elif cmd == 'llen':
                         listName = inline[1]

@@ -137,6 +137,7 @@ def main():
                         if varDict.get(listName) == None:
                             return b'-1\r\n'
                         outStr = str(varDict.get(listName).pop())
+                        print('outStr is', outStr)
                         return app.respParse.encode_out(outStr)
     
                 else:

@@ -28,7 +28,7 @@ def main():
         res = b'*' + str(len(arra)).encode("utf-8") + b'\r\n'
         for i in arra: 
             curStr = str(i).encode("utf-8")
-            res += str(len(curStr)).encode("utf-8")
+            res += b'$' + str(len(curStr)).encode("utf-8")
             res += b'\r\n'
             res += str(i).encode("utf-8") 
             res += b'\r\n'

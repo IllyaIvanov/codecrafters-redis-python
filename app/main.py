@@ -128,7 +128,7 @@ def main():
                                 if inds[i] + n < 0:
                                     inds[i] = 0
                                 elif inds[i] < 0:
-                                    inds[i] = n - inds[i]
+                                    inds[i] = n + inds[i]
                             print('inds are', inds)
                             tList = tList[inds[0]:inds[1]+1]
                             outline = encodeArray(tList)

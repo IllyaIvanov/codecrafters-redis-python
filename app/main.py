@@ -136,19 +136,19 @@ def main():
                         listName = inline[1]
                         if varDict.get(listName) == None:
                             return b'-1\r\n'
-                        k = 1
-                        if len(inline) > 2:
-                            k = int(inline[2])
-                        if len(varDict.get(listName)) <= k:
-                            outline = app.respParse.encode_out(varDict[listName])
-                            varDict[listName] = []
-                            print(f'outline is', outline)
-                            print(f'its type is', type(outline))
+
+                        if len(inline) < 2:
+                            outline = app.respParse.encode_out(varDict[listName][0])
+                            varDict[listName] =  varDict[listName][1:]
+
                         else:
-                            outline = app.respParse.encode_out(varDict[listName][:k])
-                            varDict[listName] = varDict[listName][k:]
-                            print(f'outline is', outline)
-                            print(f'its type is', type(outline))
+                            k = int(inline[2])
+                            if len(varDict.get(listName)) <= k:
+                                outline = app.respParse.encode_out(varDict[listName])
+                                varDict[listName] = []
+                            else:
+                                outline = app.respParse.encode_out(varDict[listName][:k])
+                                varDict[listName] = varDict[listName][k:]
                         
                 else:
                     outline = data

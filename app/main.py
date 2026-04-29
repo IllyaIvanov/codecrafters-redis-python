@@ -157,8 +157,8 @@ def main():
 
                         popd = False
                         while timeOut == 0 or time.time() < tExp:
-                            if varDict.get(listName) != {}:
-                                print('key got added')
+                            if varDict.get(listName):
+                                print(f'key {listName} is now {varDict[listname]} ')
                                 popd = True
                                 break
                         if popd:

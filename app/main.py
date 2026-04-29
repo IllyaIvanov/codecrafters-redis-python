@@ -138,7 +138,7 @@ def main():
                             return b'-1\r\n'
                         outStr = str(varDict.get(listName).pop())
                         print('outStr is', outStr)
-                        return app.respParse.encode_out(outStr)
+                        outline = app.respParse.encode_out(outStr)
     
                 else:
                     outline = data

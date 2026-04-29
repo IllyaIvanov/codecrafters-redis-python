@@ -93,13 +93,18 @@ def main():
                         else: 
                             outline = b'$-1\r\n'
                     elif cmd == 'rpush':
-                        listName = inline[1]
-                        listEl = inline[2]
-                        if varDict.get(listName) != None:
-                            varDict[listName].append(listEl)
+                        
+                        listName = inline[1] #making the list we add
+                        if len(inline) = 3:
+                            listExtra = [inline[2]]
                         else:
-                            varDict [inline[1]] = [inline[2]]
-                        l = len(varDict[inline[1]])
+                            listExtra = inline[2:]
+
+                        if varDict.get(listName) != None:
+                            varDict[listName] += listExtra #adding the new part to the existing list
+                        else:
+                            varDict[listName] = listExtra #if no list, make it
+                        l = len(varDict[listName])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
                 else:

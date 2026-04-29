@@ -94,7 +94,7 @@ def main():
                     elif cmd == 'rpush':
                         varDict [inline[1]] = [int(inline[2])]
                         l = len(varDict[inline[1]])
-                        outline = b':' + str(l).encode("utf-8") + b'\r\n\'
+                        outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
                 else:
                     outline = data

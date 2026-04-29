@@ -93,7 +93,7 @@ def main():
                         else: 
                             outline = b'$-1\r\n'
                     elif cmd == 'rpush':
-                        varDict [inline[1]] = [int(inline[2])]
+                        varDict [inline[1]] = [inline[2]]
                         l = len(varDict[inline[1]])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
 

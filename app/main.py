@@ -123,7 +123,7 @@ def main():
                             print('called list is', tList)
                             n = len(tList)
                             print('its length is', n)
-                            inds = [int j for j in inline[2:4]]
+                            inds = [int(j) for j in inline[2:4]]
                             for i in range(2):
                                 if inds[i] + n < 0:
                                     inds[i] = 0

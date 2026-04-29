@@ -146,6 +146,15 @@ def main():
                             print('inds are', inds)
                             tList = tList[inds[0]:inds[1]+1]
                             outline = encodeArray(tList)
+                    
+                    elif cmd == 'llen':
+                        listName = inline[1]
+                        tList = varDict.get(listName)
+                        if tList == None:
+                            outline = b':0\r\n'
+                        else:
+                            l = len(tList)
+                            outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
     
                 else:

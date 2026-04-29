@@ -152,13 +152,21 @@ def main():
                         listName = inline[1] #todo just compile it together? if received a list, then listName is ...
                         timeOut = int(inline[2])
                         tExp = time.time() + timeOut
+                        delT = timeOut/10
 
                         popd = False
+                        chP = time.time()
+                        cT = 0
                         while timeOut == 0 or time.time() < tExp:
+                            if timeOut != 0 and time.time()-chP > delT:
+                                chp = time.time()
+                                print(f'checkpoint {chp}, {cT}/10')
                             if varDict.get(listName):
                                 print(f'key {listName} is now {varDict[listname]} ')
                                 popd = True
                                 break
+                        
+
                         if popd:
                             outline = app.respParse.encode_out([listName, \
                                                                  varDict[listName][0]])

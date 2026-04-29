@@ -58,18 +58,19 @@ def main():
                         vName = inline[1]
                         vVal = inline[2]
                         if len(inline) > 3:
-                        if inline[3] and inline[4]: 
-                            # optional expiry parameters
-                            oName = inline[3].lower()
-                            oVal = int(inline[4])
-                            print('oName, oVal', oName, oVal)
 
-                            if oName == 'px':
-                                exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
-                                print('will expire at', exps[vName])
-                            elif oName == 'ex':
-                                exps[vName] = datetime.now() + timedelta(seconds = oVal)
-                                print('will expire at', exps[vName])
+                            if inline[3] and inline[4]: 
+                                # optional expiry parameters
+                                oName = inline[3].lower()
+                                oVal = int(inline[4])
+                                print('oName, oVal', oName, oVal)
+    
+                                if oName == 'px':
+                                    exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
+                                    print('will expire at', exps[vName])
+                                elif oName == 'ex':
+                                    exps[vName] = datetime.now() + timedelta(seconds = oVal)
+                                    print('will expire at', exps[vName])
                         
 
                         varDict[vName] = vVal

@@ -36,7 +36,7 @@ def encode_out(toSend):
         header = b':' + header
         body = str(toSend).encode("utf-8") 
     elif isinstance(toSend, str): #bulk string
-        header = b'$' + header
+        header = b'$' + str(len(toSend)).encode("utf-8") + header
         body = str(len(toSend)).encode("utf-8") + b'\r\n' + \
                toSend.encode("utf-8")
     elif isinstance(toSend, list):

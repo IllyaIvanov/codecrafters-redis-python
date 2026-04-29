@@ -1,6 +1,7 @@
 # do a separate resp parser
 # what is (match.string)?
 # how to do proper case switch, and not 10000 elifs?
+# importing files doesn't work
 
 import socket  # noqa: F401
 import threading
@@ -18,7 +19,7 @@ def main():
             if data:
                 timeIn = datetime.now()
                 #print(f'data is {data}')
-                inline = respIn(data)
+                inline = app.respParse.decode_resp(data)
                 print('inline is', inline)
                 if type(inline) == list:
                     cmd = inline[0].lower()
@@ -135,7 +136,7 @@ def main():
                         listName = inline[1]
                         if varDict.get(listName) == None:
                             return b'-1\r\n'
-                        return varDict.get(listName).pop()
+                        return app.respParse.encode_out(varDict.get(listName).pop())
     
                 else:
                     outline = data

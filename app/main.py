@@ -24,6 +24,16 @@ def main():
                 res.append(lines[2*i+2].decode("utf-8"))
         return res
 
+    def encodeArray(arra):
+        res = b'*' + str(len(arra)).encode("utf-8") + b'\r\n'
+        for i in arra: 
+            curStr = str(i).encode("utf-8")
+            res += str(len(curStr)).encode("utf-8")
+            res += b'\r\n'
+            res += str(i).encode("utf-8") 
+            res += b'\r\n'
+        return res
+
     def respond(conn):
         outline = None
         varDict = {}
@@ -42,7 +52,6 @@ def main():
                     if cmd == 'echo':
                         outline = b'$' 
                         #print('command is echo, outline starts with', outline)
-
                         for i in inline[1:]:
                             print('i is', i)
                             curStr = str(i).encode("utf-8")
@@ -50,32 +59,31 @@ def main():
                             outline += b'\r\n'
                             outline += str(i).encode("utf-8") 
                             outline += b'\r\n'
+
                     elif cmd == 'ping':
                         #print('command is ping')
                         outline = b'+PONG\r\n'
+
                     elif cmd == 'set':
                         outline =b'+OK\r\n' 
                         vName = inline[1]
                         vVal = inline[2]
                         if len(inline) > 3:
-
                             if inline[3] and inline[4]: 
                                 # optional expiry parameters
                                 oName = inline[3].lower()
                                 oVal = int(inline[4])
                                 print('oName, oVal', oName, oVal)
-    
                                 if oName == 'px':
                                     exps[vName] = datetime.now() + timedelta(microseconds = (oVal * 1000))
                                     print('will expire at', exps[vName])
                                 elif oName == 'ex':
                                     exps[vName] = datetime.now() + timedelta(seconds = oVal)
                                     print('will expire at', exps[vName])
-                        
-
                         varDict[vName] = vVal
                         print(f'set {vName} to {varDict.get(vName)}')
                         print('varDict is', varDict)
+
                     elif cmd == 'get':
                         print('varDict is', varDict)
                         vName = inline[1]
@@ -92,20 +100,28 @@ def main():
                                 outline = b'$' + l.encode("utf-8") + b'\r\n' + vOut.encode("utf-8") + b'\r\n'
                         else: 
                             outline = b'$-1\r\n'
+
                     elif cmd == 'rpush':
-                        
                         listName = inline[1] #making the list we add
                         if len(inline) == 3:
                             listExtra = [inline[2]]
                         else:
                             listExtra = inline[2:]
-
                         if varDict.get(listName) != None:
                             varDict[listName] += listExtra #adding the new part to the existing list
                         else:
                             varDict[listName] = listExtra #if no list, make it
                         l = len(varDict[listName])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
+
+                    elif cmd == 'lrange':
+                        listName = inline[1]
+                        ind1 = int(inline[2])
+                        ind2 = int(inline[3])
+                        tList = []
+                        for i in range(ind1, ind2 + 1):
+                            tList.append(inline[i])
+                        outline = encodeArray(tList)
 
                 else:
                     outline = data

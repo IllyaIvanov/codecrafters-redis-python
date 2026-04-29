@@ -142,9 +142,13 @@ def main():
                         if len(varDict.get(listName)) <= k:
                             outline = app.respParse.encode_out(varDict[listName])
                             varDict[listName] = []
+                            print(f'outline is', outline)
+                            print(f'its type is', type(outline))
                         else:
                             outline = app.respParse.encode_out(varDict[listName][:k])
                             varDict[listName] = varDict[listName][k:]
+                            print(f'outline is', outline)
+                            print(f'its type is', type(outline))
                         
                 else:
                     outline = data

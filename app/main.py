@@ -136,11 +136,16 @@ def main():
                         listName = inline[1]
                         if varDict.get(listName) == None:
                             return b'-1\r\n'
-                        outStr = str(varDict.get(listName)[0])
-                        varDict[listName] = varDict[listName][1:]
-                        print('outStr is', outStr)
-                        outline = app.respParse.encode_out(outStr)
-    
+                        k = 1
+                        if inline[2]:
+                            k = inline[2]
+                        if len(varDict.get(listName)) <= k:
+                            outline = app.respParse.encode_out(varDict[listName])
+                            varDict[listName] = []
+                        else:
+                            outline = app.respParse.encode_out(varDict[listName][:k])
+                            varDict[listName] = varDict[listName][k:]
+                        
                 else:
                     outline = data
                 print(outline) 

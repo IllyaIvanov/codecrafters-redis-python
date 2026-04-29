@@ -1,3 +1,7 @@
+# do a separate resp parser
+# what is (match.string)?
+# how to do proper case switch, and not 10000 elifs?
+
 import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
@@ -156,6 +160,15 @@ def main():
                             l = len(tList)
                             outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
+                    elif cmd == 'lpop':
+                        listName = inline[1]
+                        if varDict.get(listName) == None:
+                            return b'-1\r\n'
+                        return varDict.get(listName).pop()
+
+
+
+
     
                 else:
                     outline = data
@@ -180,4 +193,5 @@ def main():
 
 
 if __name__ == "__main__":
+    #todo why the underscores? what does this specific initialization do?
     main()

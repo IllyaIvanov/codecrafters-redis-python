@@ -156,6 +156,7 @@ def main():
                         t1 = time.time()
                         popd = False
                         while timeOut == 0 or time.time() < timeOut + t1: 
+                            print(t1+timeOut - time.time(),'seconds left')
                             if varDict.get(listName) != None:
                                 popd = True
                                 break

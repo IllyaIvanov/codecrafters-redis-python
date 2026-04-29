@@ -157,18 +157,17 @@ def main():
                         delT = 0.2  
                         if timeOut: 
                             delT = timeOut/10
-
                         popd = False
                         chP = time.time()
-                        print('checkpoint', chP)
+                        print('first checkpoint', chP)
                         cT = 0
                         while timeOut == 0:
                         #while timeOut == 0 or time.time() < tExp:
                             if time.time() - chP > delT:
                                 chp = time.time()
-                                print(f'checkpoint {chp}, {cT}')
+                                print(f'next checkpoint {chp}, {cT}')
                             if varDict.get(listName) != []:
-                                print(f'key {listName} is now {varDict[listname]} ')
+                                print(f'key {listName} is now {varDict[listName]} ')
                                 popd = True
                                 break
                         

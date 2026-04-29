@@ -28,7 +28,6 @@ def main():
 
                     if cmd == 'echo':
                         outline = b'$' 
-                        #print('command is echo, outline starts with', outline)
                         for i in inline[1:]:
                             print('i is', i)
                             curStr = str(i).encode("utf-8")
@@ -38,7 +37,6 @@ def main():
                             outline += b'\r\n'
 
                     elif cmd == 'ping':
-                        #print('command is ping')
                         outline = b'+PONG\r\n'
 
                     elif cmd == 'set':

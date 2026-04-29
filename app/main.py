@@ -6,6 +6,7 @@
 import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
+import time
 
 import app.respParse
 
@@ -136,11 +137,9 @@ def main():
                         listName = inline[1]
                         if varDict.get(listName) == None:
                             return b'-1\r\n'
-
                         if len(inline) <= 2:
                             outline = app.respParse.encode_out(varDict[listName][0])
                             varDict[listName] =  varDict[listName][1:]
-
                         else:
                             k = int(inline[2])
                             if len(varDict.get(listName)) <= k:
@@ -149,7 +148,25 @@ def main():
                             else:
                                 outline = app.respParse.encode_out(varDict[listName][:k])
                                 varDict[listName] = varDict[listName][k:]
-                        
+
+                    elif cmd == 'blpop': #todo: make commands into functions of string,
+                        #so that I can just refer lpop here
+                        listName = inline[1] #todo just compile it together? if received a list, then listName is ...
+                        timeOut = int(inline[2])
+                        t1 = time.time()
+                        popd = False
+                        while timeOut == 0 or time.time() < timeOut + t1: 
+                            if varDict.get(listName) != None:
+                                popd = True
+                                break
+                        if popd:
+
+                            outline = app.respParse.encode_out([listName, \
+                                                                 varDict[listName][0]])
+                            varDict[listName] =  varDict[listName][1:]
+                        else:
+                            outline = b'*-1\r\n'
+
                 else:
                     outline = data
                 print(outline) 

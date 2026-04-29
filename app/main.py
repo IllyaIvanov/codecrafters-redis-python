@@ -9,16 +9,6 @@ from datetime import datetime, timedelta
 from respParse import decode_resp, encode_out
 
 def main():
-    def encodeArray(arra):
-        res = b'*' + str(len(arra)).encode("utf-8") + b'\r\n'
-        for i in arra: 
-            curStr = str(i).encode("utf-8")
-            res += b'$' + str(len(curStr)).encode("utf-8")
-            res += b'\r\n'
-            res += str(i).encode("utf-8") 
-            res += b'\r\n'
-        return res
-
     def respond(conn):
         outline = None
         varDict = {}
@@ -146,10 +136,6 @@ def main():
                         if varDict.get(listName) == None:
                             return b'-1\r\n'
                         return varDict.get(listName).pop()
-
-
-
-
     
                 else:
                     outline = data

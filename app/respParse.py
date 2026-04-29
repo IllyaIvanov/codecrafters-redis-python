@@ -1,7 +1,4 @@
-def decode_resp(data): 
-    # original -- -//- (data: str) -> List[str]:
-    #why specify the data type? why specify output type? why "List"?
-    return
+
 def decode_resp(inline):
     prefix = chr(inline[0]) #chr -- converts single byte char to actual char
     res = None
@@ -48,16 +45,8 @@ def encode_out(toSend):
         header = b'*' + str(len(toSend)).encode("utf-8") + header 
         tail = b''
         for i in toSend:
-            body += str(len(i)).encode("utf-8") + b'\r\n' + \
+            body += b'$' + str(len(i)).encode("utf-8") + b'\r\n' + \
                 str(i).encode("utf-8") + b'\r\n'
 
     print(f'header {header}, body {body}, tail {tail}')
     return header + body + tail
-
-line = b'*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n'
-
-d = decode_resp(line)
-print(d)
-
-e = encode_out(d)
-print(e)

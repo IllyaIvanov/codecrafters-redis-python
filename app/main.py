@@ -119,9 +119,11 @@ def main():
                         if varDict.get(listName) == None:
                             outline = b'*0\r\n'
                         else:
-                            ind1 = int(inline[2])
-                            ind2 = int(inline[3])
-                            tList = varDict.get(listName)[ind1:ind2+1]
+                            tList = varDict.get(listName)
+                            n = len(tList)
+                            ind1 = int(inline[2]) % n
+                            ind2 = int(inline[3]) % n
+                            tList = tList[ind1:ind2+1]
                             outline = encodeArray(tList)
     
                 else:

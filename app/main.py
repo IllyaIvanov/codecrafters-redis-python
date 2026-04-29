@@ -115,9 +115,9 @@ def main():
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
                     elif cmd == 'lrange':
-                        listName = inline[1]
-                        ind1 = int(inline[2])
-                        ind2 = int(inline[3])
+                        listName = inline[2]
+                        ind1 = int(inline[3])
+                        ind2 = int(inline[4])
                         tList = []
                         for i in range(ind1, ind2 + 1):
                             tList.append(inline[i])

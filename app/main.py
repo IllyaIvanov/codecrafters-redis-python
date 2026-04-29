@@ -120,9 +120,12 @@ def main():
                             outline = b'*0\r\n'
                         else:
                             tList = varDict.get(listName)
+                            print('called list is', tList)
                             n = len(tList)
+                            print('its length is', n)
                             ind1 = int(inline[2]) % n
                             ind2 = int(inline[3]) % n
+                            print('inds are', ind1, ind2)
                             tList = tList[ind1:ind2+1]
                             outline = encodeArray(tList)
     

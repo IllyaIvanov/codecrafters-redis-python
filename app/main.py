@@ -123,10 +123,14 @@ def main():
                             print('called list is', tList)
                             n = len(tList)
                             print('its length is', n)
-                            ind1 = int(inline[2]) % n
-                            ind2 = int(inline[3]) % n
-                            print('inds are', ind1, ind2)
-                            tList = tList[ind1:ind2+1]
+                            inds = [int j for j in inline[2:4]]
+                            for i in range(2):
+                                if inds[i] + n < 0:
+                                    inds[i] = 0
+                                elif inds[i] < 0:
+                                    inds[i] = n - inds[i]
+                            print('inds are', inds)
+                            tList = tList[inds[0]:inds[1]+1]
                             outline = encodeArray(tList)
     
                 else:

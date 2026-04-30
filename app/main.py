@@ -155,18 +155,15 @@ def main():
                         timeOut = int(inline[2])
                         print('timeout is', timeOut)
                         tExp = time.time() + timeOut
-                        if waitstarts: 
+                        if waitstarts != []: 
                             waitcount = waitstarts[-1]+1
                         else:
                             waitcount = 0
                         waitstarts.append(waitcount)
                         print('waitstarts is now', waitstarts)
-
-
-
-                        delT = 200
-                        if timeOut: 
-                            delT = timeOut/10
+                        delT = 100
+                        if timeOut != 0: 
+                            delT = timeOut*100
                         popd = False
                         chP = time.time()
                         print('first checkpoint', chP)

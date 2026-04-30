@@ -161,7 +161,7 @@ def main():
                             waitcount = 0
                         waitstarts.append(waitcount)
                         print('waitstarts is now', waitstarts)
-                        delT = 100
+                        delT = 1
                         if timeOut != 0: 
                             delT = timeOut*100
                         popd = False
@@ -172,7 +172,8 @@ def main():
                         #while timeOut == 0 or time.time() < tExp:
                             if time.time() - chP > delT:
                                 chp = time.time()
-                                print(f'next checkpoint {chp}, {cT}')
+                                print(f'next checkpoint {chp}, {cT}, {varDict.get(listName)}')
+                                cT += 1
                             if not varDict.get(listName) in [None, []]:
                                 print(f'key {listName} is now {varDict.get(listName)} ')
                                 popd = True

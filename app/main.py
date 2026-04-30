@@ -161,7 +161,7 @@ def main():
                             waitcount = 0
                         waitstarts.append(waitcount)
                         print('waitstarts is now', waitstarts)
-                        delT = 1
+                        delT = 10
                         if timeOut != 0: 
                             delT = timeOut*100
                         popd = False

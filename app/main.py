@@ -170,11 +170,13 @@ def main():
                         cT = 0
                         while timeOut == 0:
                         #while timeOut == 0 or time.time() < tExp:
-                            if time.time() - chP > delT:
-                                chp = time.time()
-                                print(f'next checkpoint {chp}, {cT}, {varDict.get(listName)}')
+                            tt = time.time()
+                            if tt - chP > delT:
+                                chp = tt
+                                lst = varDict.get(listName)
+                                print(f'next checkpoint {chp}, {cT}, lst')
                                 cT += 1
-                            if not varDict.get(listName) in [None, []]:
+                            if not lst in [None, []]:
                                 print(f'key {listName} is now {varDict.get(listName)} ')
                                 popd = True
                                 break

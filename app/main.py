@@ -155,10 +155,16 @@ def main():
                         timeOut = int(inline[2])
                         print('timeout is', timeOut)
                         tExp = time.time() + timeOut
-                        waitcount = len(waitstarts)
+                        if waitstarts: 
+                            waitcount = waitstarts[-1]+1
+                        else:
+                            waitcount = 0
                         waitstarts.append(waitcount)
+                        print('waitstarts is now', waitstarts)
 
-                        delT = 0.2  
+
+
+                        delT = 200
                         if timeOut: 
                             delT = timeOut/10
                         popd = False

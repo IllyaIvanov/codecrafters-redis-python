@@ -169,6 +169,7 @@ def main():
                         print('first checkpoint', chP)
                         cT = 0
                         while timeOut == 0:
+                            lst = varDict.get(listName)
                         #while timeOut == 0 or time.time() < tExp:
                             tt = time.time()
                             if tt - chP > delT:

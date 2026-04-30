@@ -13,6 +13,7 @@ import app.respParse
 def main():
     def respond(conn):
         outline = None
+        waitstarts = []
         varDict = {}
         exps = {}
         while True:
@@ -148,11 +149,14 @@ def main():
                                 varDict[listName] = varDict[listName][k:]
 
                     elif cmd == 'blpop': #todo: make commands into functions of string,
+
                         #so that I can just refer lpop here
                         listName = inline[1] #todo just compile it together? if received a list, then listName is ...
                         timeOut = int(inline[2])
                         print('timeout is', timeOut)
                         tExp = time.time() + timeOut
+                        waitcount = len(waitstarts)
+                        waitstarts.append(waitcount)
 
                         delT = 0.2  
                         if timeOut: 
@@ -166,12 +170,10 @@ def main():
                             if time.time() - chP > delT:
                                 chp = time.time()
                                 print(f'next checkpoint {chp}, {cT}')
-                            if varDict.get(listName) != []:
-                                print(f'key {listName} is now {varDict[listName]} ')
+                            if not varDict.get(listName) in [None, []]:
+                                print(f'key {listName} is now {varDict.get(listName)} ')
                                 popd = True
                                 break
-                        
-
                         if popd:
                             outline = app.respParse.encode_out([listName, \
                                                                  varDict[listName][0]])

@@ -203,6 +203,8 @@ def main():
         if not connection: 
             break
         thr = threading.Thread(target=respond, args=(connection,))
+        if thr:
+            print(thr)
         thr.start()
         
         #for curcon in connections:

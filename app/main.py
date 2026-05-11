@@ -198,8 +198,7 @@ def main():
                             #if time.time() - chP > 10:
                             if c >= 1000:
                                 c = 0
-                                print(f'waitcount {waitcount}: prev chP {chP},
-                                      next checkpoint {time.time()} ')
+                                print(f'waitcount {waitcount}: prev chP {chP}, next checkpoint {time.time()} ')
                                 chP = time.time()
                                 if not varDict.get(listName):
                                     print(f'waitcount {waitcount}: list still empty')

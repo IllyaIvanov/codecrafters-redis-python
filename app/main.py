@@ -178,7 +178,9 @@ def main():
                         print('waitstarts is now', waitstarts)
 
                         a = True
+                        chP = time.time()
                         while a:
+                                
                             if timeOut != 0 and tExp < time.time():
                                 a = 'expired'
                                 waitstarts.remove(waitcount)
@@ -187,6 +189,19 @@ def main():
                                 
                             a = (waitstarts[-1] != waitcount) or (
                                 not varDict.get(listName)) 
+
+                            if time.time() - chP > 100:
+                                chP = time.time()
+                                if not varDict.get(listName):
+                                    print(f'waitcount {waitcount}: list still empty')
+                                elif  (waitstarts[-1] != waitcount):
+                                    print(
+                                        f'Not my turn: my waitcount is {waitcount}'
+                                        f'but waitstarts are {waitstarts}'
+                                          )
+                                else:
+                                    print(f'waitcount {waitcount}: all conditions are satisfied')
+
                         if a != 'expired':
                             outlist = [listName, varDict[listName][0]]
                             outline = app.respParse.encode_out(outlist)

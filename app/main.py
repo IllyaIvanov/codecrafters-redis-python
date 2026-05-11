@@ -13,6 +13,7 @@ import app.respParse
 
 def main():
     def respond(conn):
+        waitstarts = []
         outline = None
         varDict = {}
         exps = {}
@@ -96,6 +97,7 @@ def main():
                         l = len(varDict[listName])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
                         print(f'rpushed: {listName} is now {varDict.get(listName)}')
+                        print(f'waitstarts is {waitstarts}')
 
                     elif cmd == 'lpush':
                         listName = inline[1]  # making the list we add

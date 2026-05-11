@@ -179,9 +179,11 @@ def main():
 
                         a = True
                         chP = time.time()
+                        print(f'waitcount: {waitcount}: first checkpoint is {chP}')
+                        
                         while a:
-                                
                             if timeOut != 0 and tExp < time.time():
+                                print(f'waitcount {waitcount}: expired')
                                 a = 'expired'
                                 waitstarts.remove(waitcount)
                                 outline = b'*-1\r\n'

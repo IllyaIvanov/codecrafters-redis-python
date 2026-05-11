@@ -181,8 +181,10 @@ def main():
                         chP = time.time()
                         print(f'waitcount: {waitcount}: first checkpoint is {chP}')
 
+                        c = 0
                         while a: 
-                            print(f'waitcount {waitcount}: next loop')
+                            c += 1
+                                
                             if timeOut != 0 and tExp < time.time():
                                 print(f'waitcount {waitcount}: expired')
                                 a = 'expired'
@@ -193,8 +195,11 @@ def main():
                             a = (waitstarts[-1] != waitcount) or (
                                 not varDict.get(listName)) 
 
-                            if time.time() - chP > 10:
-                                print(f'waitcount {waitcount}: next checkpoint ')
+                            #if time.time() - chP > 10:
+                            if c >= 1000:
+                                c = 0
+                                print(f'waitcount {waitcount}: prev chP {chP},
+                                      next checkpoint {time.time()} ')
                                 chP = time.time()
                                 if not varDict.get(listName):
                                     print(f'waitcount {waitcount}: list still empty')

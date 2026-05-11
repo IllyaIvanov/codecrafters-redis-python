@@ -180,8 +180,9 @@ def main():
                         a = True
                         chP = time.time()
                         print(f'waitcount: {waitcount}: first checkpoint is {chP}')
-                        
+
                         while a:
+                            
                             if timeOut != 0 and tExp < time.time():
                                 print(f'waitcount {waitcount}: expired')
                                 a = 'expired'
@@ -192,7 +193,7 @@ def main():
                             a = (waitstarts[-1] != waitcount) or (
                                 not varDict.get(listName)) 
 
-                            if time.time() - chP > 100:
+                            if time.time() - chP > 10:
                                 chP = time.time()
                                 if not varDict.get(listName):
                                     print(f'waitcount {waitcount}: list still empty')
@@ -203,6 +204,7 @@ def main():
                                           )
                                 else:
                                     print(f'waitcount {waitcount}: all conditions are satisfied')
+                        print(f'waitcount {waitcount}: done with the loop')
 
                         if a != 'expired':
                             outlist = [listName, varDict[listName][0]]

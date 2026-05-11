@@ -14,7 +14,6 @@ import app.respParse
 def main():
     def respond(conn):
         outline = None
-        waitstarts = []
         varDict = {}
         exps = {}
         while True:
@@ -203,6 +202,7 @@ def main():
                                 if not varDict.get(listName):
                                     print(f'waitcount {waitcount}: list {listName} still empty')
                                     print(f'look at it: {varDict.get(listName)}')
+                                    print(f'and varDict is {varDict}')
                                 elif  (waitstarts[-1] != waitcount):
                                     print(
                                         f'Not my turn: my waitcount is {waitcount}'

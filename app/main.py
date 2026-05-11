@@ -196,12 +196,12 @@ def main():
                                 not varDict.get(listName)) 
 
                             #if time.time() - chP > 10:
-                            if c >= 1000:
+                            if c >= 10000:
                                 c = 0
                                 print(f'waitcount {waitcount}: prev chP {chP}, next checkpoint {time.time()} ')
                                 chP = time.time()
                                 if not varDict.get(listName):
-                                    print(f'waitcount {waitcount}: list still empty')
+                                    print(f'waitcount {waitcount}: list {listName} still empty')
                                 elif  (waitstarts[-1] != waitcount):
                                     print(
                                         f'Not my turn: my waitcount is {waitcount}'

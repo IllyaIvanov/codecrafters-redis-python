@@ -98,6 +98,7 @@ def main():
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
                         print(f'rpushed: {listName} is now {varDict.get(listName)}')
                         print(f'waitstarts is {waitstarts}')
+                        print('varDict is', varDict)
 
                     elif cmd == 'lpush':
                         listName = inline[1]  # making the list we add

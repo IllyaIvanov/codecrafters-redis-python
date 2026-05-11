@@ -149,6 +149,7 @@ def main():
                                 varDict[listName] = varDict[listName][k:]
 
                     elif cmd == 'blpop': #todo: make commands into functions of string,
+                        print('current thread is', threading.current_thread())
 
                         #so that I can just refer lpop here
                         listName = inline[1] #todo just compile it together? if received a list, then listName is ...

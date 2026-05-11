@@ -96,6 +96,7 @@ def main():
                             varDict[listName] = listExtra
                         l = len(varDict[listName])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
+                        print(f'rpushed: {listName} is now {varDict.get(listName)}')
 
                     elif cmd == 'lpush':
                         listName = inline[1]  # making the list we add
@@ -195,7 +196,7 @@ def main():
                             a = (waitstarts[-1] != waitcount) or (
                                 not varDict.get(listName)) 
 
-                            if time.time() - chP > 0.2:
+                            if time.time() - chP > 0.4:
                                 c = 0
                                 print(f'waitcount {waitcount}: prev chP {chP}, next checkpoint {time.time()} ')
                                 chP = time.time()

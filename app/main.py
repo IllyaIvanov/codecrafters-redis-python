@@ -243,11 +243,23 @@ def main():
                                     tip = 'set'
                                 case 'zset':
                                     tip = 'zset'
-                                case '__main__.stream':
+                                case '__main__.main.<locals>.stream':
                                     tip = 'stream'
                                 case 'vectorset':
                                     tip = 'vectorset'
                                 case _:
+                                    nes = '__main__.main.<locals>.stream'
+                                    if nes == res:
+                                        print('they are literally the same value')
+                                    else:
+                                        comp = ''
+                                        print(f'lengths are {len{res}} and {len(nes)}')
+                                        for i in range(len(res)):
+                                            if res[i] == nes [i]:
+                                                comp += res[i]
+                                            else:
+                                                comp += f'({res[i],nes[i]})'
+                                    print('comp is', comp)
                                     tip = 'unknown'
                             outline = app.respParse.enSimple(tip)
 

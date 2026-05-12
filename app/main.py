@@ -12,9 +12,16 @@ import app.respParse
 
 
 def main():
+    class stream:
+        def __init__(self, id):
+            self.id = id
+            self.data = {}
+
     varDict = {} # for some reason, blpop was not able to see the varDict, 
                 #and all the other commands were??
     waitstarts = []
+
+
     def respond(conn):
         outline = None
         exps = {}
@@ -232,7 +239,7 @@ def main():
                                     tip = 'set'
                                 case 'zset':
                                     tip = 'zset'
-                                case 'stream':
+                                case '__main__.stream':
                                     tip = 'stream'
                                 case 'vectorset':
                                     tip = 'vectorset'
@@ -240,12 +247,12 @@ def main():
 
                     elif cmd == 'xadd':
                         streamKey = inline[1]
-                        strm = varDict.get(streamKey)
-                        if strm == None:
-                            varDict[streamKey] = {}
-                        for i in range(2, len(inline), 2):
-                            varDict[streamKey][inline[i]] = inline[i+1]
-                        outline = app.respParse.encode_out(streamKey)
+                        streamID = inline[2]
+                        if varDict.get(streamKey) == None:
+                            varDict[streamKey] = stream(streamID)
+                        for i in range(3, len(inline), 2):
+                            varDict[streamKey].data[str(inline[i])] = inline[i+1]
+                        outline = app.respParse.encode_out(streamID)
 
                 else:
                     outline = data

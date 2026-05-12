@@ -170,15 +170,16 @@ def main():
                         timeOut = int(inline[2])
                         print('timeout is', timeOut)
 
-                        # calculate when will the timeout expire
-
+                        # calculate when will the timeout expire, also getting a number
                         tExp = time.time() + timeOut
                         if waitstarts != []:
                             waitcount = waitstarts[-1]+1
                         else:
                             waitcount = 0
                         waitstarts.append(waitcount)
-                        print('waitstarts is now', waitstarts)
+                        print('waitstarts is now', waitstarts,'going to sleep')
+                        time.sleep(1)
+                        print('varDict is now', varDict)
 
                         a = True
                         chP = time.time()

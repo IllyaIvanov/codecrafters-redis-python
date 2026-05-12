@@ -253,7 +253,7 @@ def main():
                                         print('they are literally the same value')
                                     else:
                                         comp = ''
-                                        print(f'lengths are {len{res}} and {len(nes)}')
+                                        print(f'lengths are {len(res)} and {len(nes)}')
                                         for i in range(len(res)):
                                             if res[i] == nes [i]:
                                                 comp += res[i]

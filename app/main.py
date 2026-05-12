@@ -168,13 +168,10 @@ def main():
                     elif cmd == 'blpop':  # todo: make commands into functions of string,
                         # read the listname and timeout
                         ########### literally just copying the rpush
-
-
                         # todo just compile it together? if received a list, then listName is ...
                         listName = inline[1]
                         timeOut = float(inline[2])
                         print('timeout is', timeOut)
-
                         # calculate when will the timeout expire, also getting a number
                         tExp = time.time() + timeOut
                         if waitstarts != []:
@@ -183,12 +180,9 @@ def main():
                             waitcount = 0
                         waitstarts.append(waitcount)
                         print('waitstarts is now', waitstarts)
-                        
-
                         a = True
                         chP = time.time()
                         print(f'waitcount: {waitcount}: first checkpoint is {chP}')
-
                         while a: 
                             if timeOut != 0 and tExp < time.time():
                                 print(f'waitcount {waitcount}: expired')
@@ -199,7 +193,6 @@ def main():
                                 
                             a = (waitstarts[0] != waitcount) or (
                                 not varDict.get(listName)) 
-
                             if time.time() - chP > 0.4:
                                 c = 0
                                 print(f'waitcount {waitcount}: prev chP {chP}, next checkpoint {time.time()} ')
@@ -216,40 +209,20 @@ def main():
                                 else:
                                     print(f'waitcount {waitcount}: all conditions are satisfied')
                         print(f'waitcount {waitcount}: done with the loop')
-
                         if a != 'expired':
                             outlist = [listName, varDict[listName][0]]
                             outline = app.respParse.encode_out(outlist)
                             varDict[listName] = varDict[listName][1:] 
                             waitstarts.remove(waitcount)
 
-                            #delT = 10
-                            #if timeOut != 0:
-                            #    delT = timeOut*100
-                            #popd = False
-                            #chP = time.time()
-                            #print('first checkpoint', chP)
-                            #cT = 0
-                            #while timeOut == 0:
-                            #    # while timeOut == 0 or time.time() < tExp:
-                            #    lst = varDict.get(listName)
-                            #    tt = time.time()
-                            #    if tt - chP > delT:
-                            #        chp = tt
-                            #        lst = varDict.get(listName)
-                            #        print(f'next checkpoint {chp}, {cT}, lst')
-                            #        cT += 1
-                            #    if not lst in [None, []]:
-                            #        print(
-                            #            f'key {listName} is now {varDict.get(listName)} ')
-                            #        popd = True
-                            #        break
-                            #if popd:
-                            #    outline = app.respParse.encode_out([listName,
-                            #                                        varDict[listName][0]])
-                            #    varDict[listName] = varDict[listName][1:]
-                            #else:
-                            #    outline = b'*-1\r\n'
+                    elif cmd == 'type':
+                        listName = inline[1]
+                        val = varDict.get(listName) 
+                        if val == None:
+                            outline = app.respParse.encode_out('none')
+                        else:
+                            tip = str(type(val))[8:-2]
+                            outline = app.respParse.enSimple(tip)
 
                 else:
                     outline = data

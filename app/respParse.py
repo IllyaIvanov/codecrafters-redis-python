@@ -43,7 +43,10 @@ def encode_out(toSend):
             return b'*0\r\n'
         header = b'*' + str(len(toSend)).encode("utf-8") + header 
         tail = b''
-        for i in toSend:
+        for i in toSend: 
+            # wait, what does it do if the thing is not array of strings? 
+            # well, it better be array of strings. todo: make work for 
+            # different list element types
             body += b'$' + str(len(i)).encode("utf-8") + b'\r\n' + \
                 str(i).encode("utf-8") + b'\r\n'
 

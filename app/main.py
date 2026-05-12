@@ -228,7 +228,11 @@ def main():
                         if val == None:
                             outline = app.respParse.enSimple('none')
                         else:
-                            match str(type(val))[8:-2]:
+                            res = str(type(val))
+                            print('value type is', res)
+                            res = res[8:-2]
+                            print('res is', res)
+                            match res:
                                 case 'str':
                                     tip = 'string'
                                 case 'list':
@@ -243,6 +247,8 @@ def main():
                                     tip = 'stream'
                                 case 'vectorset':
                                     tip = 'vectorset'
+                                case _:
+                                    tip = 'unknown'
                             outline = app.respParse.enSimple(tip)
 
                     elif cmd == 'xadd':

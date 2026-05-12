@@ -219,7 +219,7 @@ def main():
                         listName = inline[1]
                         val = varDict.get(listName) 
                         if val == None:
-                            outline = app.respParse.encode_out('none')
+                            outline = app.respParse.enSimple('none')
                         else:
                             match str(type(val))[8:-2]:
                                 case 'str':

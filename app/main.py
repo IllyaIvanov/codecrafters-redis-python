@@ -12,10 +12,11 @@ import app.respParse
 
 
 def main():
+    varDict = {} # for some reason, blpop was not able to see the varDict, 
+                #and all the other commands were??
+    waitstarts = []
     def respond(conn):
-        waitstarts = []
         outline = None
-        varDict = {}
         exps = {}
         while True:
             data = conn.recv(1024)
@@ -55,10 +56,12 @@ def main():
                                     exps[vName] = datetime.now() + \
                                         timedelta(microseconds=(oVal * 1000))
                                     print('will expire at', exps[vName])
+                                    print('exps are', exps)
                                 elif oName == 'ex':
                                     exps[vName] = datetime.now() + \
                                         timedelta(seconds=oVal)
                                     print('will expire at', exps[vName])
+                                    print('exps are', exps)
                         varDict[vName] = vVal
                         print(f'set {vName} to {varDict.get(vName)}')
                         print('varDict is', varDict)
@@ -72,7 +75,8 @@ def main():
                         if vVal != None:
                             if exps.get(vName) and exps.get(vName) < datetime.now():
                                 print(f'key {vName} expired')
-                                outline = b'$-1\r\n'
+                                outline = b'$-1\r\n' 
+                                print('exps are', exps)
                             else:
                                 vOut = str(vVal)
                                 l = str(len(vOut))
@@ -97,8 +101,7 @@ def main():
                         l = len(varDict[listName])
                         outline = b':' + str(l).encode("utf-8") + b'\r\n'
                         print(f'rpushed: {listName} is now {varDict.get(listName)}')
-                        print(f'waitstarts is {waitstarts}')
-                        print('varDict is', varDict)
+                        print('rpushed varDict is', varDict)
 
                     elif cmd == 'lpush':
                         listName = inline[1]  # making the list we add
@@ -164,6 +167,8 @@ def main():
 
                     elif cmd == 'blpop':  # todo: make commands into functions of string,
                         # read the listname and timeout
+                        ########### literally just copying the rpush
+
 
                         # todo just compile it together? if received a list, then listName is ...
                         listName = inline[1]
@@ -177,18 +182,14 @@ def main():
                         else:
                             waitcount = 0
                         waitstarts.append(waitcount)
-                        print('waitstarts is now', waitstarts,'going to sleep')
-                        time.sleep(1)
-                        print('varDict is now', varDict)
+                        print('waitstarts is now', waitstarts)
+                        
 
                         a = True
                         chP = time.time()
                         print(f'waitcount: {waitcount}: first checkpoint is {chP}')
 
-                        c = 0
                         while a: 
-                            c += 1
-                                
                             if timeOut != 0 and tExp < time.time():
                                 print(f'waitcount {waitcount}: expired')
                                 a = 'expired'
@@ -196,7 +197,7 @@ def main():
                                 outline = b'*-1\r\n'
                                 break
                                 
-                            a = (waitstarts[-1] != waitcount) or (
+                            a = (waitstarts[0] != waitcount) or (
                                 not varDict.get(listName)) 
 
                             if time.time() - chP > 0.4:
@@ -207,9 +208,9 @@ def main():
                                     print(f'waitcount {waitcount}: list {listName} still empty')
                                     print(f'look at it: {varDict.get(listName)}')
                                     print(f'and varDict is {varDict}')
-                                elif  (waitstarts[-1] != waitcount):
+                                elif  (waitstarts[0] != waitcount):
                                     print(
-                                        f'Not my turn: my waitcount is {waitcount}'
+                                        f'Not my turn: my waitcount is {waitcount}, '
                                         f'but waitstarts are {waitstarts}'
                                           )
                                 else:

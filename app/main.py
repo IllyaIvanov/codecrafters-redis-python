@@ -221,7 +221,21 @@ def main():
                         if val == None:
                             outline = app.respParse.encode_out('none')
                         else:
-                            tip = str(type(val))[8:-2]
+                            match str(type(val))[8:-2]:
+                                case 'str':
+                                    tip = 'string'
+                                case 'list':
+                                    tip = 'list'
+                                case 'hash':
+                                    tip = 'hash'
+                                case 'set':
+                                    tip = 'set'
+                                case 'zset':
+                                    tip = 'zset'
+                                case 'stream':
+                                    tip = 'stream'
+                                case 'vectorset':
+                                    tip = 'vectorset'
                             outline = app.respParse.enSimple(tip)
 
                 else:

@@ -238,6 +238,15 @@ def main():
                                     tip = 'vectorset'
                             outline = app.respParse.enSimple(tip)
 
+                    elif cmd == 'xadd':
+                        streamKey = inline[1]
+                        strm = varDict.get(streamKey)
+                        if strm == None:
+                            varDict[streamKey] = {}
+                        for i in range(2, len(inline), 2):
+                            varDict[streamKey][inline[i]] = inline[i+1]
+                        outline = app.respParse.encode_out(streamKey)
+
                 else:
                     outline = data
                 print(outline)

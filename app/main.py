@@ -172,7 +172,7 @@ def main():
 
                         # todo just compile it together? if received a list, then listName is ...
                         listName = inline[1]
-                        timeOut = int(inline[2])
+                        timeOut = float(inline[2])
                         print('timeout is', timeOut)
 
                         # calculate when will the timeout expire, also getting a number

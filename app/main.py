@@ -302,7 +302,6 @@ def main():
                             idVal[1] = int(idVal[1])
                         print('idVal is', idVal) 
                         streamID = '-'.join([str(x) for x in idVal])
-                        /is
                         #now, let's validate:
 
                         if max(idVal) <= 0:

@@ -286,7 +286,7 @@ def main():
                         #let's generate first:
                         if idVal == ['*']:
                             print('generating [0]')
-                            idVal[0] = (1000 * time.time()) // 1
+                            idVal[0] = int(1000 * time.time()) 
                             print('idVal[0] is', idVal[0])
                             idVal.append('*')
                         else:

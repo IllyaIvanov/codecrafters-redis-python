@@ -17,12 +17,17 @@ def main():
             self.id = id
             self.data = {}
 
-    varDict = {} # for some reason, blpop was not able to see the varDict, 
-                #and all the other commands were??
+    #now xadd can't read idMin from here
     waitstarts = []
+    varDict = {} 
+    # for some reason, blpop was not able to see the varDict when it was in 'respond', 
+    #and all the other commands were able?? 
+    #todo: read up on variable scope, look at others' implementations
 
 
     def respond(conn):
+        idMin = [0,0] 
+        #idMin doesn't work, if it's defined next to waitstarts, unlike varDict
         outline = None
         exps = {}
         while True:
@@ -248,29 +253,46 @@ def main():
                                 case 'vectorset':
                                     tip = 'vectorset'
                                 case _:
-                                    nes = '__main__.main.<locals>.stream'
-                                    if nes == res:
-                                        print('they are literally the same value')
-                                    else:
-                                        comp = ''
-                                        print(f'lengths are {len(res)} and {len(nes)}')
-                                        for i in range(len(res)):
-                                            if res[i] == nes [i]:
-                                                comp += res[i]
-                                            else:
-                                                comp += f'({res[i],nes[i]})'
-                                    print('comp is', comp)
+                                    #nes = '__main__.main.<locals>.stream'
+                                    #if nes == res:
+                                    #    print('they are literally the same value')
+                                    #else:
+                                    #    comp = ''
+                                    #    print(f'lengths are {len(res)} and {len(nes)}')
+                                    #    for i in range(len(res)):
+                                    #        if res[i] == nes [i]:
+                                    #            comp += res[i]
+                                    #        else:
+                                    #            comp += f'({res[i],nes[i]})'
+                                    #print('comp is', comp)
                                     tip = 'unknown'
                             outline = app.respParse.enSimple(tip)
 
                     elif cmd == 'xadd':
+                        # validate ID's
+                        #seq.number-time in ms
+                        # seq. number >=, time >
                         streamKey = inline[1]
                         streamID = inline[2]
-                        if varDict.get(streamKey) == None:
-                            varDict[streamKey] = stream(streamID)
-                        for i in range(3, len(inline), 2):
-                            varDict[streamKey].data[str(inline[i])] = inline[i+1]
-                        outline = app.respParse.encode_out(streamID)
+                        #validate
+                        idVal = [int(num) for num in streamID.split('-')]
+                        print('validating', idVal)
+                        print('comparing it to', idMin)
+                        if idVal[0] <= 0 and idVal[1] <=0:
+                            outline = app.respParse.enErr('ERR The ID specified in XADD '
+                            'must be greater than 0-0')
+                        elif idVal[0] < idMin[0] or idVal[1] <= idMin[1]: 
+                            print(f'id {idVal} is invalid')
+                            outline = app.respParse.enErr('ERR The ID specified in XADD is equal or smaller than' \
+                            ' the target stream top item')
+                        else:
+                            print(f'id {idVal} is valid')
+                            idMin = idVal
+                            if varDict.get(streamKey) == None:
+                                varDict[streamKey] = stream(streamID)
+                            for i in range(3, len(inline), 2):
+                                varDict[streamKey].data[str(inline[i])] = inline[i+1]
+                            outline = app.respParse.encode_out(streamID)
 
                 else:
                     outline = data

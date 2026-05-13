@@ -29,6 +29,9 @@ def decode_resp(inline):
 def enSimple(toSend):
     return b'+' + toSend.encode("utf-8") + b'\r\n'
 
+def enErr(toSend):
+    return b'-' + toSend.encode("utf-8") + b'\r\n'
+
 def encode_out(toSend):
     body = b''
     header = tail = b'\r\n'

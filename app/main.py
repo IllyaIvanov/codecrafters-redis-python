@@ -299,8 +299,8 @@ def main():
                         if max(idVal) <= 0:
                                 errMsg = 'ERR The ID specified in XADD must be greater than 0-0'
                         elif idVal[0] < idMin[0] or (idVal[0] == idMin[0] and idVal[1] <= idMin[1]):
-                            errMsg = ('ERR The ID specified in XADD is equal or smaller than' + \ 
-                                      ' the target stream top item')
+                            errMsg = ('ERR The ID specified in XADD is equal or smaller than '
+                            'the target stream top item')
                         if errMsg:
                             outline = app.respParse.enErr(errMsg)
                         else:

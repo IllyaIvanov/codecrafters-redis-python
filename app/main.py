@@ -274,19 +274,24 @@ def main():
                         # seq. number >=, time >
                         streamKey = inline[1]
                         streamID = inline[2]
+                        idVal = [stri for stri in streamID.split('-')]
+                        #generating what we need:
+                        for i in range(2):
+                            if idVal[i] == '*':
+                                idVal[i] = idMin[i] +1
+                                idMin[i] = idVal[i]
+                            else:
+                                idVal[i] = int(idVal[i])
+                        
                         #validate
-                        idVal = [int(num) for num in streamID.split('-')]
-                        print('validating', idVal)
-                        print('comparing it to', idMin)
                         if idVal[0] <= 0 and idVal[1] <=0:
-                            outline = app.respParse.enErr('ERR The ID specified in XADD '
-                            'must be greater than 0-0')
+                            errMsg = 'ERR The ID specified in XADD must be greater than 0-0'
                         elif idVal[0] < idMin[0] or idVal[1] <= idMin[1]: 
-                            print(f'id {idVal} is invalid')
-                            outline = app.respParse.enErr('ERR The ID specified in XADD is equal or smaller than' \
+                            errMsg = ('ERR The ID specified in XADD is equal or smaller than' + \
                             ' the target stream top item')
+                        if errMsg:
+                            outline = app.respParse.enErr(errMsg)
                         else:
-                            print(f'id {idVal} is valid')
                             idMin = idVal
                             if varDict.get(streamKey) == None:
                                 varDict[streamKey] = stream(streamID)

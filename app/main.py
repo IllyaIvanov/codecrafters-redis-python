@@ -269,32 +269,48 @@ def main():
                             outline = app.respParse.enSimple(tip)
 
                     elif cmd == 'xadd':
+                        print('idMin is', idMin)
+                        errMsg = ''
                         # validate ID's
                         #seq.number-time in ms
                         # seq. number >=, time >
+                        #first let's validate:
+                        #invalid options: either val[0] is strictly less then min[0]
+                        # idVal[0] != '*' and idVal[0] < idMin[0]
+                        # or they're equal and val[1] <= val[0]
+
+                        stream_is_new = False
                         streamKey = inline[1]
                         streamID = inline[2]
                         idVal = [stri for stri in streamID.split('-')]
-                        #generating what we need:
-                        for i in range(2):
-                            if idVal[i] == '*':
-                                idVal[i] = idMin[i] +1
-                                idMin[i] = idVal[i]
+                        #let's generate first:
+                        if idVal == ['*']:
+                            stream_is_new = True
+                            idVal[0] = (1000 * time.time()) // 1
+                            idVal[1] = '*'
+                        if idVal[1] == '*':
+                            stream_is_new = True
+                            if idVal[0] == idMin[0]:
+                                idVal[1] = idMin[1] + 1
                             else:
-                                idVal[i] = int(idVal[i])
-                        
-                        #validate
-                        if idVal[0] <= 0 and idVal[1] <=0:
-                            errMsg = 'ERR The ID specified in XADD must be greater than 0-0'
-                        elif idVal[0] < idMin[0] or idVal[1] <= idMin[1]: 
-                            errMsg = ('ERR The ID specified in XADD is equal or smaller than' + \
-                            ' the target stream top item')
+                                idVal[1] = 0
+                        #now, let's validate:
+
+                        if max(idVal) <= 0:
+                                errMsg = 'ERR The ID specified in XADD must be greater than 0-0'
+                        elif idVal[0] < idMin[0] or (idVal[0] == idMin[0] and idVal[1] <= idMin[1]):
+                            errMsg = ('ERR The ID specified in XADD is equal or smaller than' + \ 
+                                      ' the target stream top item')
                         if errMsg:
                             outline = app.respParse.enErr(errMsg)
                         else:
-                            idMin = idVal
-                            if varDict.get(streamKey) == None:
+                            if stream_is_new:
+                                idMin = idVal
+                                print('stream is new')
+                                streamID = '-'.join([str(x) for x in idVal])
                                 varDict[streamKey] = stream(streamID)
+                            else:
+                                print('stream isn\'t new')
                             for i in range(3, len(inline), 2):
                                 varDict[streamKey].data[str(inline[i])] = inline[i+1]
                             outline = app.respParse.encode_out(streamID)

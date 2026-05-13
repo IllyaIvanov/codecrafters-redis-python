@@ -279,14 +279,13 @@ def main():
                         # idVal[0] != '*' and idVal[0] < idMin[0]
                         # or they're equal and val[1] <= val[0]
 
-                        stream_is_new = False
                         streamKey = inline[1]
                         streamID = inline[2]
+                        stream_is_new = (varDict.get(streamID) == None)
                         idVal = [stri for stri in streamID.split('-')]
                         #let's generate first:
                         if idVal == ['*']:
                             print('generating [0]')
-                            stream_is_new = True
                             idVal[0] = (1000 * time.time()) // 1
                             print('idVal[0] is', idVal[0])
                             idVal[1] = '*'
@@ -294,7 +293,6 @@ def main():
                             idVal[0] = int(idVal[0])
                         if idVal[1] == '*':
                             print('generating[1]')
-                            stream_is_new = True
                             if idVal[0] == idMin[0]:
                                 idVal[1] = idMin[1] + 1
                             else:
@@ -302,7 +300,9 @@ def main():
                             print('idVal[1] is', idVal[1])
                         else:
                             idVal[1] = int(idVal[1])
-                        print('idVal is', idVal)
+                        print('idVal is', idVal) 
+                        streamID = '-'.join([str(x) for x in idVal])
+                        /is
                         #now, let's validate:
 
                         if max(idVal) <= 0:
@@ -316,7 +316,6 @@ def main():
                             if stream_is_new:
                                 idMin = idVal
                                 print('stream is new')
-                                streamID = '-'.join([str(x) for x in idVal])
                                 varDict[streamKey] = stream(streamID)
                             else:
                                 print('stream isn\'t new')

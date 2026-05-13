@@ -290,6 +290,8 @@ def main():
                             idVal[0] = (1000 * time.time()) // 1
                             print('idVal[0] is', idVal[0])
                             idVal[1] = '*'
+                        else:
+                            idVal[0] = int(idVal[0])
                         if idVal[1] == '*':
                             print('generating[1]')
                             stream_is_new = True
@@ -298,6 +300,8 @@ def main():
                             else:
                                 idVal[1] = 0
                             print('idVal[1] is', idVal[1])
+                        else:
+                            idVal[1] = int(idVal[1])
                         print('idVal is', idVal)
                         #now, let's validate:
 

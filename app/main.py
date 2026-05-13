@@ -285,15 +285,20 @@ def main():
                         idVal = [stri for stri in streamID.split('-')]
                         #let's generate first:
                         if idVal == ['*']:
+                            print('generating [0]')
                             stream_is_new = True
                             idVal[0] = (1000 * time.time()) // 1
+                            print('idVal[0] is', idVal[0])
                             idVal[1] = '*'
                         if idVal[1] == '*':
+                            print('generating[1]')
                             stream_is_new = True
                             if idVal[0] == idMin[0]:
                                 idVal[1] = idMin[1] + 1
                             else:
                                 idVal[1] = 0
+                            print('idVal[1] is', idVal[1])
+                        print('idVal is', idVal)
                         #now, let's validate:
 
                         if max(idVal) <= 0:

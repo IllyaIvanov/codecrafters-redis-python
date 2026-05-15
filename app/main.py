@@ -399,12 +399,16 @@ def main():
 
                     elif cmd == 'xread':
                         #print('starting xrange')
-                        streamKey = inline[2]
-                        rB = inline[3]
-                        rE = '+'
-                        strm = varDict.get(streamKey)
+                        i = 2
+                        keys = []
+                        while inline[i] in varDict:
+                            keys.append(inline[i])
+                        ids = inline[i:]
+                        print(f'keys are {keys}, ids are {ids}')
+
                         res = []
-                        res.append([streamKey, strmGet(streamKey, rB, rE)])
+                        for i in range(len(keys)):
+                            res.append([keys[i], strmGet(keys[i], ids[i], '+')])
                         outline = app.respParse.encode_out(res)
 
                        #print('starting xrange')

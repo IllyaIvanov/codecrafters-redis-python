@@ -362,7 +362,7 @@ def main():
                         streamKey = inline[1]
                         strm = varDict.get(streamKey)
                         rB = inline[2]
-                        if cmd == xrange: 
+                        if cmd == 'xrange': 
                             rE = inline[3]
                         else:
                             rE = strm.ids[-1]

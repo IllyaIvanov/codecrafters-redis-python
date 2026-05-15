@@ -401,9 +401,10 @@ def main():
                         #print('starting xrange')
                         i = 2
                         keys = []
-                        print('inline[2] is', inline[i])
                         while inline[i] in varDict:
+                            print('adding key',inline[i])
                             keys.append(inline[i])
+                            i += 1
                         ids = inline[i:]
                         print(f'keys are {keys}, ids are {ids}')
 

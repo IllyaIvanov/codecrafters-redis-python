@@ -437,8 +437,8 @@ def main():
                                 res = []
                                 break
                             else:
-                                res.append([keys[i], strmGet(keys[i], ids[i], '+', timeExp, excl)])
-                            print('the chunk is', chunk)
+                                res.append([keys[i], chunk])
+                                print('the chunk is', chunk)
                         print('res is', res)
                         outline = app.respParse.encode_out(res)
 

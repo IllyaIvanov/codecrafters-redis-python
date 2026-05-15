@@ -359,10 +359,15 @@ def main():
 
                     elif cmd in ['xrange','xread']:
                         #print('starting xrange')
-                        streamKey = inline[1]
+                        if cmd == 'xrange':
+                            streamKey = inline[1]
+                            rB = inline[2]
+                        else:
+                            streamKey = inline[2]
+                            rB = inline[3]
+
                         strm = varDict.get(streamKey)
                         print('stream is', strm)
-                        rB = inline[2]
                         if cmd == 'xrange': 
                             rE = inline[3]
                         else:

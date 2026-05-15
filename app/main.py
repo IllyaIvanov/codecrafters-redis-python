@@ -370,13 +370,16 @@ def main():
                             #print('stream not found somehow?')
                             outline = app.respParse.enErr('Error: no such stream')
                         else:
-                            i = 0
-                            while idComp(rB, strm.ids[i]) == '>':
-                                i += 1
-                            idB = i
-                            while idComp(rE, strm.ids[i]) == '>' and i < len(strm.ids):
-                                i += 1
-                            idE = i
+                            i = idB = 0
+                            if rB != '-':
+                                while idComp(rB, strm.ids[i]) == '>':
+                                    i += 1
+                                idB = i
+                            idE = len(strm.ids)-1
+                            if rE != '+':
+                                while idComp(rE, strm.ids[i]) == '>':
+                                    i += 1
+                                idE = i
                             #if i == len(strm.ids) - 1:
                             #    idE = -1
                             print(f'idB and idE are {idB,idE}')

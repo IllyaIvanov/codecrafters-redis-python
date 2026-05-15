@@ -357,12 +357,15 @@ def main():
                             #print(f'stream \'{streamKey}\' ids are now {varDict[streamKey].ids}')
                             outline = app.respParse.encode_out(streamID)
 
-                    elif cmd == 'xrange':
+                    elif cmd in ['xrange','xread']:
                         #print('starting xrange')
                         streamKey = inline[1]
-                        rB = inline[2]
-                        rE = inline[3]
                         strm = varDict.get(streamKey)
+                        rB = inline[2]
+                        if cmd == xrange: 
+                            rE = inline[3]
+                        else:
+                            rE = strm.ids[-1]
                         print(f'stream {streamKey} has ids', varDict[streamKey].ids)
                         #print('strm ids are', strm.ids)
                         
@@ -388,6 +391,8 @@ def main():
                             res = strmOut(streamKey, strm.ids[idB:idE+1])
                             print('result is', res)
                             outline = app.respParse.encode_out(res)
+                    elif cmd == 'xread':
+
                 else:
                     outline = data
                 conn.send(outline)

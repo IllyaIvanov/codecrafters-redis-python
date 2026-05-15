@@ -62,7 +62,7 @@ def main():
 
 
             #todo: error messages
-    def strmGet(streamKey, idB, idE):
+    def strmGet(streamKey, idB, idE, expTime = False):
         #print('starting xrange')
         #streamKey = inline[1]
         #rB = inline[2]
@@ -76,8 +76,13 @@ def main():
             outline = app.respParse.enErr('Error: no such stream')
         else:
             i = inB = 0
+            if expTime != False:
+                while idComp(idB, strm.ids[-1]) == '>' and time.time() < expTime:
+                    i = 0
+                if time.time() > expTime and idComp(idB, strm.ids[-1]) == '>':
+                    return 'nil'
             if idB != '-':
-                while idComp(idB, strm.ids[i]) == '>':
+                while idComp(idB, strm.ids[i]) == '>' and i :
                     i += 1
                 inB = i
             inE = len(strm.ids)-1
@@ -399,7 +404,13 @@ def main():
 
                     elif cmd == 'xread':
                         #print('starting xrange')
-                        i = 2
+                        if inline[1] == 'block':
+                            timeOut = int(inline[2])
+                            timeExp = time.time() + timeOut
+                            i = 4
+                        else:
+                            timeExp = False
+                            i = 2
                         keys = []
                         while inline[i] in varDict:
                             print('adding key',inline[i])
@@ -407,10 +418,14 @@ def main():
                             i += 1
                         ids = inline[i:]
                         print(f'keys are {keys}, ids are {ids}')
-
                         res = []
                         for i in range(len(keys)):
-                            res.append([keys[i], strmGet(keys[i], ids[i], '+')])
+                            chunk = strmGet(keys[i], ids[i], '+', timeExp)
+                            if chunk == 'nil':
+                                res = []
+                                break
+                            else:
+                                res.append([keys[i], strmGet(keys[i], ids[i], '+', timeExp)])
                         outline = app.respParse.encode_out(res)
 
                        #print('starting xrange')

@@ -391,7 +391,6 @@ def main():
                             res = strmOut(streamKey, strm.ids[idB:idE+1])
                             print('result is', res)
                             outline = app.respParse.encode_out(res)
-                    elif cmd == 'xread':
 
                 else:
                     outline = data

@@ -438,7 +438,7 @@ def main():
                                 break
                             else:
                                 res.append([keys[i], chunk])
-                                print('the chunk is', app.respParse.decode_resp(chunk))
+                                print('the chunk is', chunk)
                         print('res is', res)
                         outline = app.respParse.encode_out(res)
 

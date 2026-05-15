@@ -62,7 +62,7 @@ def main():
 
 
             #todo: error messages
-    def strmGet(streamKey, idB, idE, expTime = False):
+    def strmGet(streamKey, idB, idE, expTime = False, excl = False):
         #print('starting xrange')
         #streamKey = inline[1]
         #rB = inline[2]
@@ -76,13 +76,16 @@ def main():
             outline = app.respParse.enErr('Error: no such stream')
         else:
             i = inB = 0
+            strB = ['>']
+            if excl:
+                strB.append('=')
             if expTime != False:
-                while idComp(idB, strm.ids[-1]) == '>' and time.time() < expTime:
+                while idComp(idB, strm.ids[-1]) in strB and time.time() < expTime:
                     i = 0
                 if time.time() > expTime and idComp(idB, strm.ids[-1]) == '>':
                     return 'nil'
             if idB != '-':
-                while idComp(idB, strm.ids[i]) == '>' and i :
+                while idComp(idB, strm.ids[i]) in strB and i < len(strm.ids):
                     i += 1
                 inB = i
             inE = len(strm.ids)-1
@@ -403,6 +406,7 @@ def main():
 
 
                     elif cmd == 'xread':
+                        excl = True
                         #print('starting xrange')
                         if inline[1] == 'block':
                             timeOut = int(inline[2])
@@ -425,7 +429,8 @@ def main():
                                 res = []
                                 break
                             else:
-                                res.append([keys[i], strmGet(keys[i], ids[i], '+', timeExp)])
+                                res.append([keys[i], strmGet(keys[i], ids[i], '+', timeExp, excl)])
+                        print('res is', res)
                         outline = app.respParse.encode_out(res)
 
                        #print('starting xrange')

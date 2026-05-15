@@ -424,15 +424,17 @@ def main():
                             i = 2
                         keys = []
                         while inline[i] in varDict:
-                            print('adding key',inline[i])
+                            print('getting key',inline[i])
                             keys.append(inline[i])
                             i += 1
                         ids = inline[i:]
                         print(f'keys are {keys}, ids are {ids}')
                         res = []
                         for i in range(len(keys)):
-                            chunk = strmGet(keys[i], ids[i], '+', timeExp, excl)
                             print(f'getting chunk {ids[i]} of {keys[i]}')
+                            if timeExp != False:
+                                print(f'or waiting {timeExp - time.time()} more')
+                            chunk = strmGet(keys[i], ids[i], '+', timeExp, excl)
                             if chunk == 'nil':
                                 res = []
                                 break

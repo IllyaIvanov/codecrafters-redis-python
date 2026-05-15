@@ -62,6 +62,37 @@ def main():
 
 
             #todo: error messages
+    def strmGet(streamKey, idB, idE):
+        #print('starting xrange')
+        #streamKey = inline[1]
+        #rB = inline[2]
+        #rE = inline[3]
+        #print(f'stream {streamKey} has ids', varDict[streamKey].ids)
+        #print('strm ids are', strm.ids)
+        strm = varDict.get(streamKey)
+        
+        if strm == None:
+            #print('stream not found somehow?')
+            outline = app.respParse.enErr('Error: no such stream')
+        else:
+            i = inB = 0
+            if idB != '-':
+                while idComp(idB, strm.ids[i]) == '>':
+                    i += 1
+                inB = i
+            inE = len(strm.ids)-1
+            if idE != '+':
+                while idComp(idE, strm.ids[i]) == '>':
+                    i += 1
+                inE = i
+            #if i == len(strm.ids) - 1:
+            #    idE = -1
+            #print(f'idB and idE are {idB,idE}')
+            #print(f'respective ids are{strm.ids[idB], strm.ids[idE]}')
+            #print(f'so idlist is {strm.ids[idB:idE+1]}')
+            res = strmOut(streamKey, strm.ids[inB:inE+1])
+            return res
+
 
 
         
@@ -357,47 +388,28 @@ def main():
                             #print(f'stream \'{streamKey}\' ids are now {varDict[streamKey].ids}')
                             outline = app.respParse.encode_out(streamID)
 
-                    elif cmd in ['xrange','xread']:
+                    elif cmd == 'xrange':
                         #print('starting xrange')
-                        if cmd == 'xrange':
-                            streamKey = inline[1]
-                            rB = inline[2]
-                        else:
-                            streamKey = inline[2]
-                            rB = inline[3]
-
+                        streamKey = inline[1]
+                        rB = inline[2]
+                        rE = inline[3]
                         strm = varDict.get(streamKey)
-                        print('stream is', strm)
-                        if cmd == 'xrange': 
-                            rE = inline[3]
-                        else:
-                            rE = strm.ids[-1]
-                        print(f'stream {streamKey} has ids', varDict[streamKey].ids)
-                        #print('strm ids are', strm.ids)
-                        
-                        if strm == None:
-                            #print('stream not found somehow?')
-                            outline = app.respParse.enErr('Error: no such stream')
-                        else:
-                            i = idB = 0
-                            if rB != '-':
-                                while idComp(rB, strm.ids[i]) == '>':
-                                    i += 1
-                                idB = i
-                            idE = len(strm.ids)-1
-                            if rE != '+':
-                                while idComp(rE, strm.ids[i]) == '>':
-                                    i += 1
-                                idE = i
-                            #if i == len(strm.ids) - 1:
-                            #    idE = -1
-                            print(f'idB and idE are {idB,idE}')
-                            print(f'respective ids are{strm.ids[idB], strm.ids[idE]}')
-                            print(f'so idlist is {strm.ids[idB:idE+1]}')
-                            res = strmOut(streamKey, strm.ids[idB:idE+1])
-                            print('result is', res)
-                            outline = app.respParse.encode_out(res)
+                        outline = app.respParse.encode_out(strmGet(streamKey, rB, rE))
 
+
+                    elif cmd == 'xread':
+                        #print('starting xrange')
+                        streamKey = inline[2]
+                        rB = inline[3]
+                        rE = '+'
+                        strm = varDict.get(streamKey)
+                        res = []
+                        res.append([streamKey, strmGet(streamKey, rB, rE)])
+                        outline = app.respParse.encode_out(res)
+
+                       #print('starting xrange')
+
+ 
                 else:
                     outline = data
                 conn.send(outline)

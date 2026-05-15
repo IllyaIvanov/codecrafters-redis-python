@@ -361,6 +361,7 @@ def main():
                         #print('starting xrange')
                         streamKey = inline[1]
                         strm = varDict.get(streamKey)
+                        print('stream is', strm)
                         rB = inline[2]
                         if cmd == 'xrange': 
                             rE = inline[3]

@@ -26,7 +26,7 @@ def main():
     #todo: read up on variable scope, look at others' implementations
 
     def idComp(id1, id2): #comparing two stream id's
-        print(f'comparing ids {id1} and {id2}')
+        #print(f'comparing ids {id1} and {id2}')
         v1 = [int(x) for x in id1.split('-')]
         v2 = [int(x) for x in id2.split('-')]
         c = 10*(v1[0] > v2[0]) - 10*(v1[0] < v2[0]) + 1 * (v1[1] > v2[1]) - 1 * (v1[1] < v2[1])
@@ -37,8 +37,9 @@ def main():
             ans = '='
         else:
             ans = '<'
-        print(id1, ans, id2)
+        #print(id1, ans, id2)
         return ans
+
     def strmOut(streamKey, idlist):
         if not isinstance(idlist, list):
             idlist = [idlist]

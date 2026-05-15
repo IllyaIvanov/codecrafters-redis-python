@@ -1,0 +1,470 @@
+let SessionLoad = 1
+if &cp | set nocp | endif
+let s:cpo_save=&cpo
+set cpo&vim
+imap <Nul> <C-Space>
+inoremap <expr> <Up> pumvisible() ? "\" : "\<Up>"
+inoremap <expr> <Down> pumvisible() ? "\" : "\<Down>"
+imap <C-R>	 <Plug>snipMateShow
+inoremap <expr> <S-Tab> pumvisible() ? "\" : "\<S-Tab>"
+inoremap <silent> <Plug>snipMateShow =snipMate#ShowAvailableSnips()
+inoremap <silent> <Plug>snipMateBack =snipMate#BackwardsSnippet()
+inoremap <silent> <Plug>snipMateTrigger =snipMate#TriggerSnippet(1)
+inoremap <silent> <Plug>snipMateNextOrTrigger =snipMate#TriggerSnippet()
+cnoremap <expr> <C-R><C-O><C-P> traces#check_b() ? "\\=traces#get_pfile()\" : "\\\"
+cnoremap <expr> <C-R><C-O><C-F> traces#check_b() ? "\\=traces#get_cfile()\" : "\\\"
+cnoremap <expr> <C-R><C-O><C-A> traces#check_b() ? "\\=traces#get_cWORD()\" : "\\\"
+cnoremap <expr> <C-R><C-O><C-W> traces#check_b() ? "\\=traces#get_cword()\" : "\\\"
+cnoremap <expr> <C-R><C-R><C-P> traces#check_b() ? "\\=traces#get_pfile()\" : "\\\"
+cnoremap <expr> <C-R><C-R><C-F> traces#check_b() ? "\\=traces#get_cfile()\" : "\\\"
+cnoremap <expr> <C-R><C-R><C-A> traces#check_b() ? "\\=traces#get_cWORD()\" : "\\\"
+cnoremap <expr> <C-R><C-R><C-W> traces#check_b() ? "\\=traces#get_cword()\" : "\\\"
+cnoremap <expr> <C-R><C-P> traces#check_b() ? traces#get_pfile() : "\\"
+cnoremap <expr> <C-R><C-F> traces#check_b() ? traces#get_cfile() : "\\"
+cnoremap <expr> <C-R><C-A> traces#check_b() ? traces#get_cWORD() : "\\"
+cnoremap <expr> <C-R><C-W> traces#check_b() ? traces#get_cword() : "\\"
+inoremap <silent> <C-Tab> =UltiSnips#ListSnippets()
+inoremap <C-L> u[s1z=`]au 
+snoremap <silent>  "_c
+xmap 	 <Plug>snipMateVisual
+smap 	 <Plug>snipMateNextOrTrigger
+vmap <silent>  <Plug>(searchhi-v-clear-all)
+nmap <silent>  <Plug>(searchhi-clear-all)
+snoremap  "_c
+vmap # <Plug>(searchhi-v-#)
+nmap # <Plug>(searchhi-#)
+vmap * <Plug>(searchhi-v-*)
+nmap * <Plug>(searchhi-*)
+nmap <p <Plug>(unimpaired-put-below-leftward)
+nmap <P <Plug>(unimpaired-put-above-leftward)
+nmap <s <Plug>(unimpaired-enable)
+nmap =p <Plug>(unimpaired-put-below-reformat)
+nmap =P <Plug>(unimpaired-put-above-reformat)
+nmap =s <Plug>(unimpaired-toggle)
+nmap >p <Plug>(unimpaired-put-below-rightward)
+nmap >P <Plug>(unimpaired-put-above-rightward)
+nmap >s <Plug>(unimpaired-disable)
+vmap N <Plug>(searchhi-v-N)
+nmap N <Plug>(searchhi-N)
+xnoremap <silent> T :call UltiSnips#SaveLastVisualSelection()gv"_s
+snoremap <silent> T :call UltiSnips#ExpandSnippet()
+nmap [xx <Plug>(unimpaired-xml-encode-line)
+xmap [x <Plug>(unimpaired-xml-encode)
+nmap [x <Plug>(unimpaired-xml-encode)
+nmap [uu <Plug>(unimpaired-url-encode-line)
+xmap [u <Plug>(unimpaired-url-encode)
+nmap [u <Plug>(unimpaired-url-encode)
+nmap [CC <Plug>(unimpaired-string-encode-line)
+xmap [C <Plug>(unimpaired-string-encode)
+nmap [C <Plug>(unimpaired-string-encode)
+nmap [yy <Plug>(unimpaired-string-encode-line)
+xmap [y <Plug>(unimpaired-string-encode)
+nmap [y <Plug>(unimpaired-string-encode)
+nmap [P <Plug>(unimpaired-put-above)
+nmap [p <Plug>(unimpaired-put-above)
+nmap [o <Plug>(unimpaired-enable)
+xmap [e <Plug>(unimpaired-move-selection-up)
+nmap [e <Plug>(unimpaired-move-up)
+nmap [  <Plug>(unimpaired-blank-up)
+omap [n <Plug>(unimpaired-context-previous)
+xmap [n <Plug>(unimpaired-context-previous)
+nmap [n <Plug>(unimpaired-context-previous)
+nmap [f <Plug>(unimpaired-directory-previous)
+nmap [<C-T> <Plug>(unimpaired-ptprevious)
+nmap [ <Plug>(unimpaired-ptprevious)
+nmap [T <Plug>(unimpaired-tfirst)
+nmap [t <Plug>(unimpaired-tprevious)
+nmap [<C-Q> <Plug>(unimpaired-cpfile)
+nmap [ <Plug>(unimpaired-cpfile)
+nmap [Q <Plug>(unimpaired-cfirst)
+nmap [q <Plug>(unimpaired-cprevious)
+nmap [<C-L> <Plug>(unimpaired-lpfile)
+nmap [ <Plug>(unimpaired-lpfile)
+nmap [L <Plug>(unimpaired-lfirst)
+nmap [l <Plug>(unimpaired-lprevious)
+nmap [B <Plug>(unimpaired-bfirst)
+nmap [b <Plug>(unimpaired-bprevious)
+nmap [A <Plug>(unimpaired-first)
+nmap [a <Plug>(unimpaired-previous)
+nnoremap \d :YcmShowDetailedDiagnostic
+nnoremap \no :LanguageToolClear
+nnoremap \to :LanguageToolCheck
+nnoremap \vsr :call UltiSnips#RefreshSnippets()
+nnoremap \vr :source $MYVIMRC 
+nnoremap \b :buffers:buffer  
+nmap ]xx <Plug>(unimpaired-xml-decode-line)
+xmap ]x <Plug>(unimpaired-xml-decode)
+nmap ]x <Plug>(unimpaired-xml-decode)
+nmap ]uu <Plug>(unimpaired-url-decode-line)
+xmap ]u <Plug>(unimpaired-url-decode)
+nmap ]u <Plug>(unimpaired-url-decode)
+nmap ]CC <Plug>(unimpaired-string-decode-line)
+xmap ]C <Plug>(unimpaired-string-decode)
+nmap ]C <Plug>(unimpaired-string-decode)
+nmap ]yy <Plug>(unimpaired-string-decode-line)
+xmap ]y <Plug>(unimpaired-string-decode)
+nmap ]y <Plug>(unimpaired-string-decode)
+nmap ]P <Plug>(unimpaired-put-below)
+nmap ]p <Plug>(unimpaired-put-below)
+nmap ]o <Plug>(unimpaired-disable)
+xmap ]e <Plug>(unimpaired-move-selection-down)
+nmap ]e <Plug>(unimpaired-move-down)
+nmap ]  <Plug>(unimpaired-blank-down)
+omap ]n <Plug>(unimpaired-context-next)
+xmap ]n <Plug>(unimpaired-context-next)
+nmap ]n <Plug>(unimpaired-context-next)
+nmap ]f <Plug>(unimpaired-directory-next)
+nmap ]<C-T> <Plug>(unimpaired-ptnext)
+nmap ] <Plug>(unimpaired-ptnext)
+nmap ]T <Plug>(unimpaired-tlast)
+nmap ]t <Plug>(unimpaired-tnext)
+nmap ]<C-Q> <Plug>(unimpaired-cnfile)
+nmap ] <Plug>(unimpaired-cnfile)
+nmap ]Q <Plug>(unimpaired-clast)
+nmap ]q <Plug>(unimpaired-cnext)
+nmap ]<C-L> <Plug>(unimpaired-lnfile)
+nmap ] <Plug>(unimpaired-lnfile)
+nmap ]L <Plug>(unimpaired-llast)
+nmap ]l <Plug>(unimpaired-lnext)
+nmap ]B <Plug>(unimpaired-blast)
+nmap ]b <Plug>(unimpaired-bnext)
+nmap ]A <Plug>(unimpaired-last)
+nmap ]a <Plug>(unimpaired-next)
+xmap gx <Plug>NetrwBrowseXVis
+nmap gx <Plug>NetrwBrowseX
+vmap gD <Plug>(searchhi-v-gD)
+vmap gd <Plug>(searchhi-v-gd)
+vmap g# <Plug>(searchhi-v-g#)
+vmap g* <Plug>(searchhi-v-g*)
+nmap gD <Plug>(searchhi-gD)
+nmap gd <Plug>(searchhi-gd)
+nmap g# <Plug>(searchhi-g#)
+nmap g* <Plug>(searchhi-g*)
+vmap n <Plug>(searchhi-v-n)
+nmap n <Plug>(searchhi-n)
+nmap yo <Plug>(unimpaired-toggle)
+nnoremap <silent> <Plug>(YCMFindSymbolInDocument) :call youcompleteme#finder#FindSymbol( 'document' )
+nnoremap <silent> <Plug>(YCMFindSymbolInWorkspace) :call youcompleteme#finder#FindSymbol( 'workspace' )
+nnoremap <silent> <Plug>(YCMCallHierarchy) <Cmd>call youcompleteme#hierarchy#StartRequest( 'call' )
+nnoremap <silent> <Plug>(YCMTypeHierarchy) <Cmd>call youcompleteme#hierarchy#StartRequest( 'type' )
+smap <S-Tab> <Plug>snipMateBack
+snoremap <silent> <Plug>snipMateBack a=snipMate#BackwardsSnippet()
+snoremap <silent> <Plug>snipMateNextOrTrigger a=snipMate#TriggerSnippet()
+xnoremap <silent> <Plug>NetrwBrowseXVis :call netrw#BrowseXVis()
+nnoremap <silent> <Plug>NetrwBrowseX :call netrw#BrowseX(netrw#GX(),netrw#CheckIfRemote(netrw#GX()))
+nnoremap <silent> <Plug>(grammarous-move-to-previous-error) :call grammarous#move_to_previous_error(getpos('.')[1 : 2], b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-move-to-next-error) :call grammarous#move_to_next_error(getpos('.')[1 : 2], b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-disable-category) :call grammarous#disable_category_at(getpos('.')[1 : 2], b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-disable-rule) :call grammarous#disable_rule_at(getpos('.')[1 : 2], b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-remove-error) :call grammarous#remove_error_at(getpos('.')[1 : 2], b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-close-info-window) :call grammarous#info_win#close()
+nnoremap <silent> <Plug>(grammarous-fixall) :call grammarous#fixall(b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-fixit) :call grammarous#fixit(grammarous#get_error_at(getpos('.')[1 : 2], b:grammarous_result))
+nnoremap <silent> <Plug>(grammarous-reset) :call grammarous#reset()
+nnoremap <silent> <Plug>(grammarous-open-info-window) :call grammarous#create_update_info_window_of(b:grammarous_result)
+nnoremap <silent> <Plug>(grammarous-move-to-info-window) :call grammarous#create_and_jump_to_info_window_of(b:grammarous_result)
+noremap <silent> <Plug>(searchhi-v-gD) :call searchhi#update(0, 0):call searchhi#force_ignorecase(1, 0)gD
+noremap <silent> <Plug>(searchhi-v-gd) :call searchhi#update(0, 0):call searchhi#force_ignorecase(1, 0)gd
+noremap <silent> <Plug>(searchhi-v-g#) :call searchhi#update(0, 0):call searchhi#force_ignorecase(1, 0)g#
+noremap <silent> <Plug>(searchhi-v-#) :call searchhi#update(0, 0):call searchhi#force_ignorecase(1, 0)#
+noremap <silent> <Plug>(searchhi-v-g*) :call searchhi#update(0, 0):call searchhi#force_ignorecase(1, 0)g*
+noremap <silent> <Plug>(searchhi-v-*) :call searchhi#update(0, 0):call searchhi#force_ignorecase(1, 0)*
+noremap <silent> <Plug>(searchhi-v-N) N:call searchhi#update(1, 0)
+noremap <silent> <Plug>(searchhi-v-n) n:call searchhi#update(1, 0)
+map <silent> <Plug>(searchhi-v-clear-all) :nohlsearch<Plug>(searchhi-clear)<Plug>(searchhi-v-await)
+noremap <Plug>(searchhi-v-?) :nohlsearch:call searchhi#hlsearch(1, 0)?
+noremap <Plug>(searchhi-v-/) :nohlsearch:call searchhi#hlsearch(1, 0)/
+noremap <silent> <Plug>(searchhi-v-pre-search) :nohlsearch:call searchhi#hlsearch(1, 0)
+noremap <silent> <Plug>(searchhi-v-update) :call searchhi#update(1, 0)
+noremap <silent> <Plug>(searchhi-v-clear) :call searchhi#clear(1, 0)
+noremap <silent> <Plug>(searchhi-v-await) :call searchhi#await(1, 0)
+noremap <silent> <Plug>(searchhi-v-listen) :call searchhi#listen(1, 0)
+noremap <silent> <Plug>(searchhi-gD) :call searchhi#update(0, 0):call searchhi#force_ignorecase(0, 0)gD
+noremap <silent> <Plug>(searchhi-gd) :call searchhi#update(0, 0):call searchhi#force_ignorecase(0, 0)gd
+noremap <silent> <Plug>(searchhi-g#) :call searchhi#update(0, 0):call searchhi#force_ignorecase(0, 0)g#
+noremap <silent> <Plug>(searchhi-#) :call searchhi#update(0, 0):call searchhi#force_ignorecase(0, 0)#
+noremap <silent> <Plug>(searchhi-g*) :call searchhi#update(0, 0):call searchhi#force_ignorecase(0, 0)g*
+noremap <silent> <Plug>(searchhi-*) :call searchhi#update(0, 0):call searchhi#force_ignorecase(0, 0)*
+noremap <silent> <Plug>(searchhi-N) N:call searchhi#update(0, 0)
+noremap <silent> <Plug>(searchhi-n) n:call searchhi#update(0, 0)
+map <silent> <Plug>(searchhi-clear-all) :nohlsearch<Plug>(searchhi-clear)<Plug>(searchhi-await)
+noremap <Plug>(searchhi-?) :nohlsearch:call searchhi#hlsearch(0, 0)?
+noremap <Plug>(searchhi-/) :nohlsearch:call searchhi#hlsearch(0, 0)/
+noremap <silent> <Plug>(searchhi-pre-search) :nohlsearch:call searchhi#hlsearch(0, 0)
+noremap <silent> <Plug>(searchhi-clear) :call searchhi#clear(0, 0)
+noremap <silent> <Plug>(searchhi-update) :call searchhi#update(0, 0)
+noremap <silent> <Plug>(searchhi-await) :call searchhi#await(0, 0)
+noremap <silent> <Plug>(searchhi-listen) :call searchhi#listen(0, 0)
+snoremap <C-R> "_c
+snoremap <silent> <C-H> "_c
+snoremap <silent> <Del> "_c
+snoremap <silent> <BS> "_c
+snoremap <silent> <C-Tab> :call UltiSnips#ListSnippets()
+nnoremap <silent> <Plug>unimpairedTPNext :exe "p".(v:count ? v:count : "")."tnext"
+nnoremap <silent> <Plug>unimpairedTPPrevious :exe "p".(v:count ? v:count : "")."tprevious"
+nnoremap <silent> <Plug>(unimpaired-ptnext) :exe v:count1 . "ptnext"
+nnoremap <silent> <Plug>(unimpaired-ptprevious) :exe v:count1 . "ptprevious"
+nnoremap <silent> <Plug>unimpairedTLast :exe "".(v:count ? v:count : "")."tlast"
+nnoremap <silent> <Plug>unimpairedTFirst :exe "".(v:count ? v:count : "")."tfirst"
+nnoremap <silent> <Plug>unimpairedTNext :exe "".(v:count ? v:count : "")."tnext"
+nnoremap <silent> <Plug>unimpairedTPrevious :exe "".(v:count ? v:count : "")."tprevious"
+nnoremap <Plug>(unimpaired-tlast) :=v:count ? v:count . "trewind" : "tlast"
+nnoremap <Plug>(unimpaired-tfirst) :=v:count ? v:count . "trewind" : "tfirst"
+nnoremap <silent> <Plug>(unimpaired-tnext) :exe "".(v:count ? v:count : "")."tnext"
+nnoremap <silent> <Plug>(unimpaired-tprevious) :exe "".(v:count ? v:count : "")."tprevious"
+nnoremap <silent> <Plug>unimpairedQNFile :exe "".(v:count ? v:count : "")."cnfile"zv
+nnoremap <silent> <Plug>unimpairedQPFile :exe "".(v:count ? v:count : "")."cpfile"zv
+nnoremap <silent> <Plug>(unimpaired-cnfile) :exe "".(v:count ? v:count : "")."cnfile"zv
+nnoremap <silent> <Plug>(unimpaired-cpfile) :exe "".(v:count ? v:count : "")."cpfile"zv
+nnoremap <silent> <Plug>unimpairedQLast :exe "".(v:count ? v:count : "")."clast"zv
+nnoremap <silent> <Plug>unimpairedQFirst :exe "".(v:count ? v:count : "")."cfirst"zv
+nnoremap <silent> <Plug>unimpairedQNext :exe "".(v:count ? v:count : "")."cnext"zv
+nnoremap <silent> <Plug>unimpairedQPrevious :exe "".(v:count ? v:count : "")."cprevious"zv
+nnoremap <Plug>(unimpaired-clast) :=v:count ? v:count . "cc" : "clast"zv
+nnoremap <Plug>(unimpaired-cfirst) :=v:count ? v:count . "cc" : "cfirst"zv
+nnoremap <silent> <Plug>(unimpaired-cnext) :exe "".(v:count ? v:count : "")."cnext"zv
+nnoremap <silent> <Plug>(unimpaired-cprevious) :exe "".(v:count ? v:count : "")."cprevious"zv
+nnoremap <silent> <Plug>unimpairedLNFile :exe "".(v:count ? v:count : "")."lnfile"zv
+nnoremap <silent> <Plug>unimpairedLPFile :exe "".(v:count ? v:count : "")."lpfile"zv
+nnoremap <silent> <Plug>(unimpaired-lnfile) :exe "".(v:count ? v:count : "")."lnfile"zv
+nnoremap <silent> <Plug>(unimpaired-lpfile) :exe "".(v:count ? v:count : "")."lpfile"zv
+nnoremap <silent> <Plug>unimpairedLLast :exe "".(v:count ? v:count : "")."llast"zv
+nnoremap <silent> <Plug>unimpairedLFirst :exe "".(v:count ? v:count : "")."lfirst"zv
+nnoremap <silent> <Plug>unimpairedLNext :exe "".(v:count ? v:count : "")."lnext"zv
+nnoremap <silent> <Plug>unimpairedLPrevious :exe "".(v:count ? v:count : "")."lprevious"zv
+nnoremap <Plug>(unimpaired-llast) :=v:count ? v:count . "ll" : "llast"zv
+nnoremap <Plug>(unimpaired-lfirst) :=v:count ? v:count . "ll" : "lfirst"zv
+nnoremap <silent> <Plug>(unimpaired-lnext) :exe "".(v:count ? v:count : "")."lnext"zv
+nnoremap <silent> <Plug>(unimpaired-lprevious) :exe "".(v:count ? v:count : "")."lprevious"zv
+nnoremap <silent> <Plug>unimpairedBLast :exe "".(v:count ? v:count : "")."blast"
+nnoremap <silent> <Plug>unimpairedBFirst :exe "".(v:count ? v:count : "")."bfirst"
+nnoremap <silent> <Plug>unimpairedBNext :exe "".(v:count ? v:count : "")."bnext"
+nnoremap <silent> <Plug>unimpairedBPrevious :exe "".(v:count ? v:count : "")."bprevious"
+nnoremap <Plug>(unimpaired-blast) :=v:count ? v:count . "buffer" : "blast"
+nnoremap <Plug>(unimpaired-bfirst) :=v:count ? v:count . "buffer" : "bfirst"
+nnoremap <silent> <Plug>(unimpaired-bnext) :exe "".(v:count ? v:count : "")."bnext"
+nnoremap <silent> <Plug>(unimpaired-bprevious) :exe "".(v:count ? v:count : "")."bprevious"
+nnoremap <silent> <Plug>unimpairedALast :exe "".(v:count ? v:count : "")."last"
+nnoremap <silent> <Plug>unimpairedAFirst :exe "".(v:count ? v:count : "")."first"
+nnoremap <silent> <Plug>unimpairedANext :exe "".(v:count ? v:count : "")."next"
+nnoremap <silent> <Plug>unimpairedAPrevious :exe "".(v:count ? v:count : "")."previous"
+nnoremap <Plug>(unimpaired-last) :=v:count ? v:count . "argument" : "last"
+nnoremap <Plug>(unimpaired-first) :=v:count ? v:count . "argument" : "first"
+nnoremap <silent> <Plug>(unimpaired-next) :exe "".(v:count ? v:count : "")."next"
+nnoremap <silent> <Plug>(unimpaired-previous) :exe "".(v:count ? v:count : "")."previous"
+vmap <silent> <C-L> <Plug>(searchhi-v-clear-all)
+nmap <silent> <C-L> <Plug>(searchhi-clear-all)
+inoremap <expr> 	 pumvisible() ? "\" : "\	"
+inoremap  u[s1z=`]au 
+imap 	 <Plug>snipMateShow
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_pfile()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_cfile()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_cWORD()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_cword()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_pfile()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_cfile()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_cWORD()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? "\\=traces#get_cword()\" : "\\\"
+cnoremap <expr>  traces#check_b() ? traces#get_pfile() : "\\"
+cnoremap <expr>  traces#check_b() ? traces#get_cfile() : "\\"
+cnoremap <expr>  traces#check_b() ? traces#get_cWORD() : "\\"
+cnoremap <expr>  traces#check_b() ? traces#get_cword() : "\\"
+inoremap <silent> T =UltiSnips#ExpandSnippet()
+let &cpo=s:cpo_save
+unlet s:cpo_save
+set background=dark
+set backspace=indent,eol,start
+set complete=.,w,b,u,t
+set completeopt=preview,menuone
+set cpoptions=aAceFsB
+set fileencodings=ucs-bom,utf-8,default,latin1
+set foldlevelstart=99
+set helplang=en
+set hidden
+set hlsearch
+set incsearch
+set nomodeline
+set printoptions=paper:letter
+set ruler
+set runtimepath=~/.vim,~/.vim/pack/SnipMate/start/vim-snipmate,~/.vim/pack/SnipMate/start/vim-addon-mw-utils,~/.vim/pack/SnipMate/start/tlib_vim,~/.vim/plugged/YouCompleteMe,~/.vim/plugged/vimtex,~/.vim/plugged/vim-unimpaired,~/.vim/plugged/ultisnips,~/.vim/plugged/traces.vim,~/.vim/plugged/vim-searchhi,~/.vim/plugged/vim-grammarous,~/.vim/plugged/nord-vim,/var/lib/vim/addons,/etc/vim,/usr/share/vim/vimfiles,/usr/share/vim/vim91,~/.vim/pack/SnipMate/start/vim-snipmate/after,/usr/share/vim/vimfiles/after,/etc/vim/after,/var/lib/vim/addons/after,~/.vim/plugged/vimtex/after,~/.vim/plugged/ultisnips/after,~/.vim/after
+set shortmess=filnxtToOc
+set smartcase
+set spelllang=en_gb
+set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
+set tabstop=4
+set wildignore=*.pyc
+let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
+let v:this_session=expand("<sfile>:p")
+silent only
+silent tabonly
+cd ~/syncwork/python/codecrafters/codecrafters-redis-python/app
+if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
+  let s:wipebuf = bufnr('%')
+endif
+if &shortmess =~ 'A'
+  set shortmess=aoOA
+else
+  set shortmess=aoO
+endif
+badd +1 main.py
+badd +0 respParse.py
+argglobal
+%argdel
+$argadd main.py
+edit respParse.py
+argglobal
+balt main.py
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal backupcopy=
+setlocal balloonexpr=
+setlocal nobinary
+setlocal nobreakindent
+setlocal breakindentopt=
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),0],:,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinscopedecls=public,protected,private
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=b:#,fb:-
+setlocal commentstring=#\ %s
+setlocal complete=.,w,b,u,t
+setlocal completefunc=
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal cursorlineopt=both
+setlocal define=^\\s*\\(def\\|class\\)
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'python'
+setlocal filetype=python
+endif
+setlocal fillchars=
+setlocal fixendofline
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=99
+setlocal foldmarker={{{,}}}
+set foldmethod=syntax
+setlocal foldmethod=syntax
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal formatoptions=tcq
+setlocal formatprg=
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=-1
+setlocal include=^\\s*\\(from\\|import\\)
+setlocal includeexpr=substitute(substitute(substitute(v:fname,b:grandparent_match,b:grandparent_sub,''),b:parent_match,b:parent_sub,''),b:child_match,b:child_sub,'g')
+setlocal indentexpr=python#GetIndent(v:lnum)
+setlocal indentkeys=0{,0},0),0],:,!^F,o,O,e,<:>,=elif,=except
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=python3\ -m\ pydoc
+setlocal nolinebreak
+setlocal nolisp
+setlocal lispoptions=
+setlocal lispwords=
+setlocal nolist
+setlocal listchars=
+setlocal makeencoding=
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=bin,octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=python3complete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal scrolloff=-1
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal showbreak=
+setlocal sidescrolloff=-1
+setlocal signcolumn=auto
+setlocal nosmartindent
+setlocal nosmoothscroll
+setlocal softtabstop=4
+set spell
+setlocal spell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en_gb
+setlocal spelloptions=
+setlocal statusline=
+setlocal suffixesadd=.py
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'python'
+setlocal syntax=python
+endif
+setlocal tabstop=4
+setlocal tagcase=
+setlocal tagfunc=
+setlocal tags=
+setlocal termwinkey=
+setlocal termwinscroll=10000
+setlocal termwinsize=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal thesaurusfunc=
+setlocal noundofile
+setlocal undolevels=-123456
+setlocal varsofttabstop=
+setlocal vartabstop=
+setlocal virtualedit=
+setlocal wincolor=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+let s:l = 8 - ((7 * winheight(0) + 28) / 57)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 8
+normal! 0
+tabnext 1
+if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
+  silent exe 'bwipe ' . s:wipebuf
+endif
+unlet! s:wipebuf
+set winheight=1 winwidth=20
+set shortmess=filnxtToOc
+let s:sx = expand("<sfile>:p:r")."x.vim"
+if filereadable(s:sx)
+  exe "source " . fnameescape(s:sx)
+endif
+let &g:so = s:so_save | let &g:siso = s:siso_save
+nohlsearch
+doautoall SessionLoadPost
+unlet SessionLoad
+" vim: set ft=vim :

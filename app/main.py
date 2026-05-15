@@ -83,7 +83,7 @@ def main():
             if expTime != False:
                 while idComp(idB, strm.ids[-1]) in strB and time.time() < expTime:
                     i = 0
-                if time.time() > expTime and idComp(idB, strm.ids[-1]) == '>':
+                if time.time() > expTime and idComp(idB, strm.ids[-1]) in strB:
                     return 'nil'
             if idB != '-':
                 while idComp(idB, strm.ids[i]) in strB and i < len(strm.ids):

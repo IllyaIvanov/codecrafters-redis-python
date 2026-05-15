@@ -425,12 +425,14 @@ def main():
                         print(f'keys are {keys}, ids are {ids}')
                         res = []
                         for i in range(len(keys)):
-                            chunk = strmGet(keys[i], ids[i], '+', timeExp)
+                            chunk = strmGet(keys[i], ids[i], '+', timeExp, excl)
+                            print(f'getting chunk {ids[i]} of {keys[i]}')
                             if chunk == 'nil':
                                 res = []
                                 break
                             else:
                                 res.append([keys[i], strmGet(keys[i], ids[i], '+', timeExp, excl)])
+                            print('the chunk is', chunk)
                         print('res is', res)
                         outline = app.respParse.encode_out(res)
 

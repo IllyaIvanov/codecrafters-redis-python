@@ -81,7 +81,13 @@ def main():
             if excl:
                 strB.append('=')
             if expTime != False:
+                chP = time.time()
+                step = 100
                 while idComp(idB, strm.ids[-1]) in strB and time.time() < expTime:
+                    if time.time() - chP > step:
+                        chP = time.time()
+                        print(f'max id is {strm.ids[-1]} we need to surpass {idB}')
+                        print(expTime - time.time(),'left')
                     i = 0
                 if time.time() > expTime and idComp(idB, strm.ids[-1]) in strB:
                     return 'nil'

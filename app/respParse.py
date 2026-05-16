@@ -37,7 +37,7 @@ def encode_out(toSend):
     header = tail = b'\r\n'
     if isinstance(toSend, int): 
         #print('encoding integer', toSend)
-        header = b':' + header
+        header = b':'
         body = str(toSend).encode("utf-8") 
     elif isinstance(toSend, str): #bulk string
         #print('encoding bulk string', toSend)

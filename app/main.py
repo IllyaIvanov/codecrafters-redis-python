@@ -104,10 +104,10 @@ def main():
             res = strmOut(streamKey, strm.ids[inB:inE+1])
             return res
 
+    cmdQ = []
     waitstarts = []
     varDict = {}
     charging = False
-    cmdQ = []
     # for some reason, blpop was not able to see the varDict when it was in 'respond',
     # and all the other commands were able??
     # todo: read up on variable scope, look at others' implementations
@@ -119,18 +119,23 @@ def main():
         while True:
             data = conn.recv(1024)
             if data:
-                timeIn = datetime.now()
+                #timeIn = datetime.now()
                 inline = app.respParse.decode_resp(data)
                 print('inline is', inline)
                 if type(inline) == list:
                     cmd = inline[0].lower()
                     print('command is', cmd)
 
-                    #if charging:
-                    #    cmdQ.append(cmd)
-                    #    outline = app.respParse.encode_out('QUEUED')
+                    if charging:
+                        cmdQ.append(cmd)
+                        outline = app.respParse.encode_out('QUEUED')
+                    
+                    elif cmd == 'exec':
+                        if not cmdQ:
+                            outline = app.respParse.enSimple('ERR EXEC without MULTI')
+                    
 
-                    if cmd == 'echo':
+                    elif cmd == 'echo':
                         outline = b'$'
                         for i in inline[1:]:
                             # print('i is', i)

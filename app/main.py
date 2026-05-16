@@ -126,13 +126,17 @@ def main():
                     cmd = inline[0].lower()
                     print('command is', cmd)
 
-                    #if charging:
-                    #    cmdQ.append(cmd)
-                    #    outline = app.respParse.encode_out('QUEUED')
+                    if charging == True:
+                        cmdQ.append(cmd)
+                        outline = app.respParse.encode_out('QUEUED')
                     
                     if cmd == 'exec':
-                        if cmdQ == []:
+                        if charging == False:
                             outline = app.respParse.enErr('ERR EXEC without MULTI')
+                        elif cmdQ ==[]:
+                            res = []
+                        charging = False
+                        outline = app.respParse.encode_out(res)
                     
 
                     elif cmd == 'echo':

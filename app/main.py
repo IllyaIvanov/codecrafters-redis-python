@@ -466,7 +466,10 @@ def main():
                         print('variable is', varDict.get(varKey))
                         isInt = True
                         if varDict.get(varKey) == None:
-                            varDict[varKey] = res = 1
+                            print('creating variable', varKey)
+                            varDict[varKey] = 1
+                            res = 1
+                            outline = app.respParse.encode_out(res)
                         else:
                             try:
                                 varDict[varKey] = int(varDict[varKey])

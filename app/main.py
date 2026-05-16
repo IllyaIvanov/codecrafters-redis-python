@@ -468,7 +468,7 @@ def main():
                             varDict[varKey] = res = 1
                         else:
                             try:
-                                varDict[varKey] = float(varDict[varKey])
+                                varDict[varKey] = int(varDict[varKey])
                             except:
                                 print('Error: the key is not numeric')
                             varDict[varKey] += 1

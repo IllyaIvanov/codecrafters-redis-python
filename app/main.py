@@ -143,7 +143,8 @@ def main():
                     elif charging:
                         print('charging is', charging)
                         cmdQ.append(cmd)
-                        outline = app.respParse.encode_out('QUEUED')
+                        print('cmdQ is', cmdQ)
+                        outline = app.respParse.enSimple('QUEUED')
                     
                     
 

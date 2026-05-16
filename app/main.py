@@ -467,14 +467,18 @@ def main():
                         if varDict.get(varKey) == None:
                             varDict[varKey] = res = 1
                         else:
+                            isInt = True
                             try:
                                 varDict[varKey] = int(varDict[varKey])
                             except:
+                                isInt = False
                                 print('Error: the key is not numeric')
-                            varDict[varKey] += 1
-                            res = varDict[varKey]
-                        print('res =', res)
-                        outline = app.respParse.encode_out(res)
+                                outline = app.respParse.enErr('ERR value is not an integer or out of range')
+                            if isInt:
+                                varDict[varKey] += 1
+                                res = varDict[varKey] 
+                                print('res =', res) 
+                                outline = app.respParse.encode_out(res)
                        
                 else:
                     outline = data

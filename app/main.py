@@ -43,7 +43,7 @@ def main():
     def strmOut(streamKey, idlist):
         if not isinstance(idlist, list):
             idlist = [idlist]
-        print('idlist is', idlist)
+        #print('idlist is', idlist)
         ans = []
         strm = varDict[streamKey]
         for i in idlist:
@@ -51,7 +51,7 @@ def main():
             # ans --- the total stream output
             # ans[i] ---id and then data under the this id
             ans[-1] = [i, []]
-            print('filling', ans[-1])
+            #print('filling', ans[-1])
             # j is a key for this id's data
             for j in strm.data[i]:
                 # print('strmOut is appending', j)
@@ -71,24 +71,24 @@ def main():
             # print('stream not found somehow?')
             outline = app.respParse.enErr('Error: no such stream')
         else:
-            print('timeExp is', timeExp)
+            #print('timeExp is', timeExp)
             i = inB = 0
             strB = ['>']
             if excl:
                 strB.append('=')
             if timeExp != False:
-                print('there\'s timeExp', timeExp)
+                #print('there\'s timeExp', timeExp)
                 chP = time.time()
                 # print('first chP is', chP)
                 intr = 0
                 while (not strm.ids or idComp(idB, strm.ids[-1]) in strB) and (not isinstance(timeExp, float) or time.time() < timeExp):
-                    if intr == 0:
-                        print('we start whiling with ids', strm.ids)
-                        print('timeExp is ', timeExp)
-                        print('we need to surpass', idB)
+                    #if intr == 0:
+                        #print('we start whiling with ids', strm.ids)
+                        #print('timeExp is ', timeExp)
+                        #print('we need to surpass', idB)
                     if intr >= 1000000:
                         intr = 1
-                        print(f'strm.ids are {strm.ids}, ')
+                        #print(f'strm.ids are {strm.ids}, ')
                     intr += 1
 
                 print('loop exited')
@@ -430,19 +430,22 @@ def main():
                         keys = []
                         print(f'i is {i}')
                         while inline[i] in varDict:
-                            print('getting key', inline[i])
+                            #print('getting key', inline[i])
                             keys.append(inline[i])
                             i += 1
                         ids = inline[i:]
-                        print(f'keys are {keys}, ids are {ids}')
+                        for j in range(len(ids)):
+                            if ids[i] == '$':
+                                ids[i] = varDict[keys[i]].ids[-1]
+                        
+                        #print(f'keys are {keys}, ids are {ids}')
                         res = []
                         while not keys and (timeExp == True or time.time() < timeExp):
                             res = []
                         for i in range(len(keys)):
-                            print(f'getting chunk {ids[i]} of {keys[i]}')
-                            if timeExp != False:
-                                print(
-                                    f'or waiting {timeExp - time.time()} more')
+                            #print(f'getting chunk {ids[i]} of {keys[i]}')
+                            #if timeExp != False:
+                                #print( f'or waiting {timeExp - time.time()} more')
                             chunk = strmGet(
                                 keys[i], ids[i], '+', timeExp, excl)
                             if chunk == 'nil':
@@ -450,8 +453,8 @@ def main():
                                 break
                             else:
                                 res.append([keys[i], chunk])
-                                print('the chunk is', chunk)
-                        print('res is', res)
+                                #print('the chunk is', chunk)
+                        #print('res is', res)
                         if res != []:
                             outline = app.respParse.encode_out(res)
                         else:

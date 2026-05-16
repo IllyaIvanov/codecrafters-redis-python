@@ -492,7 +492,7 @@ def main():
                     
                     elif cmd == 'multi':
                         charging = True
-                        outline = app.respParse.encode_out('OK')
+                        outline = app.respParse.enSimple('OK')
                 else:
                     outline = data
                 conn.send(outline)

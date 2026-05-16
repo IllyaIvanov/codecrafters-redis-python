@@ -130,9 +130,9 @@ def main():
                     #    cmdQ.append(cmd)
                     #    outline = app.respParse.encode_out('QUEUED')
                     
-                    elif cmd == 'exec':
-                        if not cmdQ:
-                            outline = app.respParse.enSimple('ERR EXEC without MULTI')
+                    if cmd == 'exec':
+                        if cmdQ == []:
+                            outline = app.respParse.enErr('ERR EXEC without MULTI')
                     
 
                     elif cmd == 'echo':

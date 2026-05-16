@@ -63,13 +63,7 @@ def main():
 
 
             #todo: error messages
-    def strmGet(streamKey, idB, idE, expTime = False, excl = False):
-        #print('starting xrange')
-        #streamKey = inline[1]
-        #rB = inline[2]
-        #rE = inline[3]
-        #print(f'stream {streamKey} has ids', varDict[streamKey].ids)
-        #print('strm ids are', strm.ids)
+    def strmGet(streamKey, idB, idE, timeExp = False, excl = False):
         strm = varDict.get(streamKey)
         
         if strm == None:
@@ -80,16 +74,29 @@ def main():
             strB = ['>']
             if excl:
                 strB.append('=')
-            if expTime != False:
+            if timeExp != False:
+                print('there\'s timeExp', timeExp)
                 chP = time.time()
-                step = 100
-                while idComp(idB, strm.ids[-1]) in strB and time.time() < expTime:
-                    if time.time() - chP > step:
-                        chP = time.time()
-                        print(f'max id is {strm.ids[-1]} we need to surpass {idB}')
-                        print(expTime - time.time(),'left')
-                    i = 0
-                if time.time() > expTime and idComp(idB, strm.ids[-1]) in strB:
+                print('first chP is', chP)
+                step = 200
+                intr = True
+                c = 0
+                while (not strm.ids or idComp(idB, strm.ids[-1]) in strB) and time.time() < timeExp:
+                    if intr:
+                        print('we start whiling with ids', strm.ids)
+                        intr = False
+                    #print(f'we while on, {step + chP - time.time()} til next checkpoint')
+                    #print(c)
+                    c+=1
+                    if c >= 100000:
+                        c = 0
+                        if strm.ids:
+                            print(f'ids are {strm.ids}, we need to surpass {idB}')
+                        else:
+                            print('there\'s no ids')
+                        print(timeExp - time.time(),'left')
+                if time.time() > timeExp and idComp(idB, strm.ids[-1]) in strB:
+                    print('time out')
                     return 'nil'
             if idB != '-':
                 while idComp(idB, strm.ids[i]) in strB and i < len(strm.ids):
@@ -417,7 +424,7 @@ def main():
                         #print('starting xrange')
                         if inline[1] == 'block':
                             timeOut = int(inline[2])
-                            timeExp = time.time() + timeOut
+                            timeExp = time.time() + timeOut/1000
                             i = 4
                         else:
                             timeExp = False
@@ -442,7 +449,11 @@ def main():
                                 res.append([keys[i], chunk])
                                 print('the chunk is', chunk)
                         print('res is', res)
-                        outline = app.respParse.encode_out(res)
+                        if res != []:
+                            outline = app.respParse.encode_out(res)
+                        else:
+                            outline = b'*-1\r\n'
+                            #todo --- encode empty list like that?
 
                        #print('starting xrange')
 

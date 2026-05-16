@@ -434,10 +434,10 @@ def main():
                             keys.append(inline[i])
                             i += 1
                         ids = inline[i:]
-                        print(f'keys are {keys}, ids are {ids}')
+                        #print(f'keys are {keys}, ids are {ids}')
                         for j in range(len(ids)):
-                            if ids[i] == '$':
-                                ids[i] = varDict[keys[i]].ids[-1]
+                            if ids[j] == '$':
+                                ids[j] = varDict[keys[j]].ids[-1]
                         
                         res = []
                         while not keys and (timeExp == True or time.time() < timeExp):

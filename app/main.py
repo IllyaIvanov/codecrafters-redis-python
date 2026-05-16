@@ -107,7 +107,7 @@ def main():
     cmdQ = []
     waitstarts = []
     varDict = {}
-    charging = False
+    charging = 0
     # for some reason, blpop was not able to see the varDict when it was in 'respond',
     # and all the other commands were able??
     # todo: read up on variable scope, look at others' implementations

@@ -464,10 +464,10 @@ def main():
                         varKey = inline[1]
                         print('varKey is', varKey)
                         print('variable is', varDict.get(varKey))
+                        isInt = True
                         if varDict.get(varKey) == None:
                             varDict[varKey] = res = 1
                         else:
-                            isInt = True
                             try:
                                 varDict[varKey] = int(varDict[varKey])
                             except:

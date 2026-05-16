@@ -66,7 +66,6 @@ def main():
     def strmGet(streamKey, idB, idE, timeExp=False, excl=False):
         strm = varDict.get(streamKey)
         print(f'getting the range {idB} --- {idE} from stream{strm}')
-
         if strm == None:
             # print('stream not found somehow?')
             outline = app.respParse.enErr('Error: no such stream')
@@ -90,7 +89,6 @@ def main():
                         intr = 1
                         #print(f'strm.ids are {strm.ids}, ')
                     intr += 1
-
                 print('loop exited')
                 if isinstance(timeExp, float) and time.time() > timeExp and idComp(idB, strm.ids[-1]) in strB:
                     print('time out')
@@ -460,9 +458,19 @@ def main():
                         else:
                             outline = b'*-1\r\n'
                             # todo --- encode empty list like that?
-
                        # print('starting xrange')
 
+                    elif cmd == 'incr':
+                        varKey = inline[1]
+                        if varDict.get(varKey) == None:
+                            varDict[varKey] = res = 1
+                        else:
+                            varDict[varKey] = varbl
+                            if isinstance(varDict[varKey], (int, float, complex)):
+                                varDict[varKey] += 1
+                                res = varDict[varKey]
+                        outline = app.respParse.encode_out(res)
+                       
                 else:
                     outline = data
                 conn.send(outline)

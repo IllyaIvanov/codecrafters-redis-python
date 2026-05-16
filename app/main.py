@@ -18,12 +18,6 @@ def main():
             self.data = {}
             self.idMin = [0, 0]
 
-    waitstarts = []
-    varDict = {}
-    # for some reason, blpop was not able to see the varDict when it was in 'respond',
-    # and all the other commands were able??
-    # todo: read up on variable scope, look at others' implementations
-
     def idComp(id1, id2):  # comparing two stream id's
         # print(f'comparing ids {id1} and {id2}')
         v1 = [int(x) for x in id1.split('-')]
@@ -110,6 +104,15 @@ def main():
             res = strmOut(streamKey, strm.ids[inB:inE+1])
             return res
 
+    waitstarts = []
+    varDict = {}
+    charging = False
+    cmdQ = []
+    # for some reason, blpop was not able to see the varDict when it was in 'respond',
+    # and all the other commands were able??
+    # todo: read up on variable scope, look at others' implementations
+
+
     def respond(conn):
         outline = None
         exps = {}
@@ -123,7 +126,13 @@ def main():
                     cmd = inline[0].lower()
                     print('command is', cmd)
 
-                    if cmd == 'echo':
+                    if charging:
+                        cmdQ.append(cmd)
+                        outline = app.respParse.encode_out('QUEUED')
+
+
+
+                    elif cmd == 'echo':
                         outline = b'$'
                         for i in inline[1:]:
                             # print('i is', i)
@@ -482,7 +491,10 @@ def main():
                                 res = varDict[varKey] 
                                 print('res =', res) 
                                 outline = app.respParse.encode_out(res)
-                       
+                    
+                    elif cmd == 'multi':
+                        charging = True
+                        outline = app.respParse.encode_out('OK')
                 else:
                     outline = data
                 conn.send(outline)

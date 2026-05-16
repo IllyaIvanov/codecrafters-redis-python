@@ -464,9 +464,7 @@ def main():
                         varKey = inline[1]
                         if varDict.get(varKey) == None:
                             varDict[varKey] = res = 1
-                        else:
-                            varDict[varKey] = varbl
-                            if isinstance(varDict[varKey], (int, float, complex)):
+                        elif isinstance(varDict[varKey], (int, float, complex)):
                                 varDict[varKey] += 1
                                 res = varDict[varKey]
                         outline = app.respParse.encode_out(res)

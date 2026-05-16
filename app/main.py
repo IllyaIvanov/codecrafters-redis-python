@@ -130,7 +130,7 @@ def main():
                     #    cmdQ.append(cmd)
                     #    outline = app.respParse.encode_out('QUEUED')
 
-                    elif cmd == 'echo':
+                    if cmd == 'echo':
                         outline = b'$'
                         for i in inline[1:]:
                             # print('i is', i)

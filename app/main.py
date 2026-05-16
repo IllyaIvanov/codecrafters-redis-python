@@ -462,6 +462,7 @@ def main():
 
                     elif cmd == 'incr':
                         varKey = inline[1]
+                        print('varKey is', varKey)
                         if varDict.get(varKey) == None:
                             varDict[varKey] = res = 1
                         elif isinstance(varDict[varKey], (int, float, complex)):

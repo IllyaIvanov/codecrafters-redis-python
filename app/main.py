@@ -65,26 +65,34 @@ def main():
 
     def strmGet(streamKey, idB, idE, timeExp=False, excl=False):
         strm = varDict.get(streamKey)
+        print(f'getting the range {idB} --- {idE} from stream{strm}')
 
         if strm == None:
             # print('stream not found somehow?')
             outline = app.respParse.enErr('Error: no such stream')
         else:
+            print('timeExp is', timeExp)
             i = inB = 0
             strB = ['>']
             if excl:
                 strB.append('=')
             if timeExp != False:
-                # print('there\'s timeExp', timeExp)
+                print('there\'s timeExp', timeExp)
                 chP = time.time()
                 # print('first chP is', chP)
-                intr = True
+                intr = 0
                 while (not strm.ids or idComp(idB, strm.ids[-1]) in strB) and (not isinstance(timeExp, float) or time.time() < timeExp):
-                    if intr:
+                    if intr == 0:
                         print('we start whiling with ids', strm.ids)
-                        intr = False
+                        print('timeExp is ', timeExp)
+                        print('we need to surpass', idB)
+                    if intr >= 1000000:
+                        intr = 1
+                        print(f'strm.ids are {strm.ids}, ')
+                    intr += 1
+
                 print('loop exited')
-                if isinstance(timeExp,float) and time.time() > timeExp and idComp(idB, strm.ids[-1]) in strB:
+                if isinstance(timeExp, float) and time.time() > timeExp and idComp(idB, strm.ids[-1]) in strB:
                     print('time out')
                     return 'nil'
             if idB != '-':
@@ -112,7 +120,7 @@ def main():
             if data:
                 timeIn = datetime.now()
                 inline = app.respParse.decode_resp(data)
-                # print('inline is', inline)
+                print('inline is', inline)
                 if type(inline) == list:
                     cmd = inline[0].lower()
                     print('command is', cmd)
@@ -414,11 +422,13 @@ def main():
                                 timeExp = True
                             else:
                                 timeExp = time.time() + timeOut/1000
-                                i = 4
+                            i = 4
+                            print('timeOut is', timeOut, 'timeExp is', timeExp)
                         else:
                             timeExp = False
                             i = 2
                         keys = []
+                        print(f'i is {i}')
                         while inline[i] in varDict:
                             print('getting key', inline[i])
                             keys.append(inline[i])
@@ -426,6 +436,8 @@ def main():
                         ids = inline[i:]
                         print(f'keys are {keys}, ids are {ids}')
                         res = []
+                        while not keys and (timeExp == True or time.time() < timeExp):
+                            res = []
                         for i in range(len(keys)):
                             print(f'getting chunk {ids[i]} of {keys[i]}')
                             if timeExp != False:

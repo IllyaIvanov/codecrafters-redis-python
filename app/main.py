@@ -473,6 +473,7 @@ def main():
                                 print('Error: the key is not numeric')
                             varDict[varKey] += 1
                             res = varDict[varKey]
+                        print('res =', res)
                         outline = app.respParse.encode_out(res)
                        
                 else:

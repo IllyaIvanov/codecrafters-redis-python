@@ -1,0 +1,180 @@
+Initiating test run...
+
+[32m⚡ This is a turbo test run. https://codecrafters.io/turbo[0m
+
+Running tests on your code. Logs should appear shortly...
+
+[33m[compile][0m Moved ./.codecrafters/run.sh → ./your_program.sh
+[33m[compile][0m [32mCompilation successful.[0m
+
+[33m[tester::#FY6] [0m[94mRunning tests for Stage #FY6 (Transactions - Executing a transaction)[0m
+[33m[tester::#FY6] [0m[94m$ ./your_program.sh[0m
+[33m[your_program] [0m[0mserver_socket is <socket.socket fd=3, family=2, type=1, proto=0, laddr=('127.0.0.1', 6379)>[0m
+[33m[your_program] [0m[0mmain: connection is <socket.socket fd=4, family=2, type=1, proto=0, laddr=('127.0.0.1', 6379), raddr=('127.0.0.1', 45192)>, feedee is 4[0m
+[33m[your_program] [0m[0m<Thread(Thread-1 (respond), initial)>[0m
+[33m[your_program] [0m[0mmain: connection is <socket.socket fd=5, family=2, type=1, proto=0, laddr=('127.0.0.1', 6379), raddr=('127.0.0.1', 45206)>, feedee is 5[0m
+[33m[your_program] [0m[0m<Thread(Thread-2 (respond), initial)>[0m
+[33m[tester::#FY6] [client-1] [0m[94m$ redis-cli MULTI[0m
+[33m[your_program] [0m[0minline is ['MULTI'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': []}[0m
+[33m[your_program] [0m[0mcommand is MULTI[0m
+[33m[your_program] [0m[0mCharging:[0m
+[33m[your_program] [0m[0m('OK', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  OK[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+OK\r\n'[0m
+[33m[tester::#FY6] [client-1] [0m[92m✔︎ Received "OK"[0m
+[33m[tester::#FY6] [client-1] [0m[94m> SET mango 21[0m
+[33m[your_program] [0m[0minline is ['SET', 'mango', '21'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': []}[0m
+[33m[your_program] [0m[0mcommand is SET[0m
+[33m[your_program] [0m[0mStill charging: adding set to [][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+QUEUED\r\n'[0m
+[33m[tester::#FY6] [client-1] [0m[92m✔︎ Received "QUEUED"[0m
+[33m[tester::#FY6] [client-1] [0m[94m> INCR mango[0m
+[33m[your_program] [0m[0minline is ['INCR', 'mango'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': [['SET', 'mango', '21']]}[0m
+[33m[your_program] [0m[0mcommand is INCR[0m
+[33m[your_program] [0m[0mStill charging: adding incr to ['SET'][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+QUEUED\r\n'[0m
+[33m[tester::#FY6] [client-1] [0m[92m✔︎ Received "QUEUED"[0m
+[33m[tester::#FY6] [client-1] [0m[94m> INCR banana[0m
+[33m[your_program] [0m[0minline is ['INCR', 'banana'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': [['SET', 'mango', '21'], ['INCR', 'mango']]}[0m
+[33m[your_program] [0m[0mcommand is INCR[0m
+[33m[your_program] [0m[0mStill charging: adding incr to ['SET', 'INCR'][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+QUEUED\r\n'[0m
+[33m[tester::#FY6] [client-1] [0m[92m✔︎ Received "QUEUED"[0m
+[33m[tester::#FY6] [client-1] [0m[94m> GET banana[0m
+[33m[your_program] [0m[0minline is ['GET', 'banana'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': [['SET', 'mango', '21'], ['INCR', 'mango'], ['INCR', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is GET[0m
+[33m[your_program] [0m[0mStill charging: adding get to ['SET', 'INCR', 'INCR'][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+QUEUED\r\n'[0m
+[33m[tester::#FY6] [client-1] [0m[92m✔︎ Received "QUEUED"[0m
+[33m[tester::#FY6] [client-1] [0m[94m> EXEC[0m
+[33m[your_program] [0m[0minline is ['EXEC'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': [['SET', 'mango', '21'], ['INCR', 'mango'], ['INCR', 'banana'], ['GET', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is EXEC[0m
+[33m[your_program] [0m[0mCasting:[0m
+[33m[your_program] [0m[0mCasting ['SET', 'mango', '21'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': [['SET', 'mango', '21'], ['INCR', 'mango'], ['INCR', 'banana'], ['GET', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is SET[0m
+[33m[your_program] [0m[0mCommands left: ['INCR', 'INCR', 'GET'][0m
+[33m[your_program] [0m[0mCasting ['INCR', 'mango'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': [['INCR', 'mango'], ['INCR', 'banana'], ['GET', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is INCR[0m
+[33m[your_program] [0m[0mCommands left: ['INCR', 'GET'][0m
+[33m[your_program] [0m[0mCasting ['INCR', 'banana'][0m
+[33m[tester::#FY6] [client-1] [0m[92m✔︎ Received ["OK", 22, 1, "1"][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': [['INCR', 'banana'], ['GET', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is INCR[0m
+[33m[your_program] [0m[0mCommands left: ['GET'][0m
+[33m[your_program] [0m[0mCasting ['GET', 'banana'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': [['GET', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is GET[0m
+[33m[your_program] [0m[0mCommands left: [][0m
+[33m[tester::#FY6] [client-2] [0m[94m$ redis-cli GET mango[0m
+[33m[your_program] [0m[0m([('OK', 'simple_string'), (22, 'integer'), (1, 'integer'), ('1', 'bulk_string')], 'result_list')[0m
+[33m[your_program] [0m[0mtoSend is  [('OK', 'simple_string'), (22, 'integer'), (1, 'integer'), ('1', 'bulk_string')][0m
+[33m[your_program] [0m[0moutType is result_list[0m
+[33m[your_program] [0m[0m('OK', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  OK[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0m(22, 'integer')[0m
+[33m[your_program] [0m[0mtoSend is  22[0m
+[33m[your_program] [0m[0moutType is integer[0m
+[33m[your_program] [0m[0m(1, 'integer')[0m
+[33m[your_program] [0m[0mtoSend is  1[0m
+[33m[your_program] [0m[0moutType is integer[0m
+[33m[your_program] [0m[0m('1', 'bulk_string')[0m
+[33m[your_program] [0m[0mtoSend is  1[0m
+[33m[your_program] [0m[0moutType is bulk_string[0m
+[33m[your_program] [0m[0msent outline is b'*4\r\n+OK\r\n:22\r\n:1\r\n$1\r\n1\r\n'[0m
+[33m[your_program] [0m[0minline is ['GET', 'mango'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': []}[0m
+[33m[your_program] [0m[0mcommand is GET[0m
+[33m[your_program] [0m[0m('22', 'bulk_string')[0m
+[33m[your_program] [0m[0mtoSend is  22[0m
+[33m[your_program] [0m[0moutType is bulk_string[0m
+[33m[your_program] [0m[0msent outline is b'$2\r\n22\r\n'[0m
+[33m[tester::#FY6] [client-2] [0m[92m✔︎ Received "22"[0m
+[33m[tester::#FY6] [0m[92mTest passed.[0m
+
+[33m[tester::#RS9] [0m[94mRunning tests for Stage #RS9 (Transactions - Queueing commands)[0m
+[33m[tester::#RS9] [0m[94m$ ./your_program.sh[0m
+[33m[your_program] [0m[0mserver_socket is <socket.socket fd=3, family=2, type=1, proto=0, laddr=('127.0.0.1', 6379)>[0m
+[33m[your_program] [0m[0mmain: connection is <socket.socket fd=4, family=2, type=1, proto=0, laddr=('127.0.0.1', 6379), raddr=('127.0.0.1', 45214)>, feedee is 4[0m
+[33m[your_program] [0m[0m<Thread(Thread-1 (respond), initial)>[0m
+[33m[tester::#RS9] [client-1] [0m[94m$ redis-cli MULTI[0m
+[33m[your_program] [0m[0mmain: connection is <socket.socket fd=5, family=2, type=1, proto=0, laddr=('127.0.0.1', 6379), raddr=('127.0.0.1', 45228)>, feedee is 5[0m
+[33m[your_program] [0m[0m<Thread(Thread-2 (respond), initial)>[0m
+[33m[your_program] [0m[0minline is ['MULTI'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': False, 'cmdQ': []}[0m
+[33m[your_program] [0m[0mcommand is MULTI[0m
+[33m[your_program] [0m[0mCharging:[0m
+[33m[your_program] [0m[0m('OK', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  OK[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+OK\r\n'[0m
+[33m[tester::#RS9] [client-1] [0m[92m✔︎ Received "OK"[0m
+[33m[tester::#RS9] [client-1] [0m[94m> SET banana 95[0m
+[33m[your_program] [0m[0minline is ['SET', 'banana', '95'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': []}[0m
+[33m[your_program] [0m[0mcommand is SET[0m
+[33m[your_program] [0m[0mStill charging: adding set to [][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+QUEUED\r\n'[0m
+[33m[tester::#RS9] [client-1] [0m[92m✔︎ Received "QUEUED"[0m
+[33m[tester::#RS9] [client-1] [0m[94m> INCR banana[0m
+[33m[your_program] [0m[0minline is ['INCR', 'banana'][0m
+[33m[tester::#RS9] [client-1] [0m[92m✔︎ Received "QUEUED"[0m
+[33m[tester::#RS9] [client-2] [0m[94m$ redis-cli GET banana[0m
+[33m[tester::#RS9] [0m[91mExpected null bulk string ($-1\r\n), found simple string[0m
+[33m[tester::#RS9] [0m[91mTest failed[0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': [['SET', 'banana', '95']]}[0m
+[33m[your_program] [0m[0mcommand is INCR[0m
+[33m[your_program] [0m[0mStill charging: adding incr to ['SET'][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+[33m[your_program] [0m[0msent outline is b'+QUEUED\r\n'[0m
+[33m[your_program] [0m[0minline is ['GET', 'banana'][0m
+[33m[your_program] [0m[0mexCmd thinks that feedee is 5[0m
+[33m[your_program] [0m[0mvarDict is {'charging': True, 'cmdQ': [['SET', 'banana', '95'], ['INCR', 'banana']]}[0m
+[33m[your_program] [0m[0mcommand is GET[0m
+[33m[your_program] [0m[0mStill charging: adding get to ['SET', 'INCR'][0m
+[33m[your_program] [0m[0m('QUEUED', 'simple_string')[0m
+[33m[your_program] [0m[0mtoSend is  QUEUED[0m
+[33m[your_program] [0m[0moutType is simple_string[0m
+
+View our article on debugging test failures: https://codecrafters.io/debug
+

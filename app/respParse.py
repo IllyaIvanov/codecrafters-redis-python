@@ -7,7 +7,7 @@ def decode_resp(inline):
     elif prefix =='-': #error
         return inline.decode("utf-8")[1:-4]
     elif prefix ==':': #int
-        if inline[1] == '+': 
+        if inline[1] == '+':
             return int(inline.decode("utf-8")[2:-4])
         else:
             return int(inline.decode("utf-8")[1:-4])
@@ -32,34 +32,57 @@ def enSimple(toSend):
 def enErr(toSend):
     return b'-' + toSend.encode("utf-8") + b'\r\n'
 
-def encode_out(toSend):
+def encode_out(result):
+    print(result)
+    toSend = result[0]
+    outType = result[1]
+
+    print('toSend is ', toSend)
     body = b''
     header = tail = b'\r\n'
-    if isinstance(toSend, int): 
-        #print('encoding integer', toSend)
-        header = b':'
-        body = str(toSend).encode("utf-8") 
-    elif isinstance(toSend, str): #bulk string
-        #print('encoding bulk string', toSend)
-        header = b'$' + str(len(toSend)).encode("utf-8") + header
-        body = toSend.encode("utf-8")
-    elif isinstance(toSend, list):
-        print('encoding list', toSend)
-        if not toSend:
-            return b'*0\r\n'
-        header = b'*' + str(len(toSend)).encode("utf-8") + header 
-        tail = b''
-        for i in toSend: 
-            # wait, what does it do if the thing is not array of strings? 
-            # well, it better be array of strings. todo: make work for 
-            # different list element types 
-            #print('encoding', i)
-            newstr = encode_out(i)
-            #print('newstr is', newstr)
-            body +=  newstr 
-            #print('body is', body, '\n')
-            #body += b'$' + str(len(i)).encode("utf-8") + b'\r\n' + \ str(i).encode("utf-8") + b'\r\n'
+    body = str(toSend).encode("utf-8")
+    if outType == 'unknown':
+        if isinstance(toSend, int):
+            outType = 'integer'
+        elif isinstance(toSend, list):
+            outType = 'array'
+        elif isinstance(toSend, str):
+            outType = 'bulk_string'
 
-
+    print('outType is', outType)
+    match outType:
+        case 'result_list':
+            if not toSend:
+                return b'*0\r\n'
+            tail = b''
+            body = b''
+            header = b'*' + str(len(toSend)).encode("utf-8") + header
+            while toSend:
+                body += encode_out(toSend[0])
+                toSend = toSend[1:]
+        case 'integer':
+            #print('encoding integer', toSend)
+            header = b':'
+            body = str(toSend).encode("utf-8")
+        case 'bulk_string':
+            #print('encoding bulk string', toSend)
+            header = b'$' + str(len(toSend)).encode("utf-8") + header
+        case 'array':
+            body = b''
+        # print('encoding list', toSend)
+            if not toSend:
+                return b'*0\r\n'
+            header = b'*' + str(len(toSend)).encode("utf-8") + header
+            tail = b''
+            for i in toSend:
+                body += encode_out((i,'unknown'))
+        case 'simple_string':
+            header = b'+'
+        case 'simple_error':
+            header = b'-'
+        case 'null_array':
+            return b'*-1\r\n'
+        case 'null_bulk_string':
+            return b'$-1\r\n'
     #print(f'header {header}, body {body}, tail {tail}')
     return header + body + tail

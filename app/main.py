@@ -463,11 +463,16 @@ def main():
                     elif cmd == 'incr':
                         varKey = inline[1]
                         print('varKey is', varKey)
+                        print('variable is', varDict.get(varKey))
                         if varDict.get(varKey) == None:
                             varDict[varKey] = res = 1
-                        elif isinstance(varDict[varKey], (int, float, complex)):
-                                varDict[varKey] += 1
-                                res = varDict[varKey]
+                        else:
+                            try:
+                                varDict[varKey] = float(varDict[varKey])
+                            except:
+                                print('Error: the key is not numeric')
+                            varDict[varKey] += 1
+                            res = varDict[varKey]
                         outline = app.respParse.encode_out(res)
                        
                 else:

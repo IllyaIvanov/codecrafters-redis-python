@@ -126,9 +126,9 @@ def main():
                     cmd = inline[0].lower()
                     print('command is', cmd)
 
-                    if self.charging:
-                        cmdQ.append(cmd)
-                        outline = app.respParse.encode_out('QUEUED')
+                    #if charging:
+                    #    cmdQ.append(cmd)
+                    #    outline = app.respParse.encode_out('QUEUED')
 
                     elif cmd == 'echo':
                         outline = b'$'

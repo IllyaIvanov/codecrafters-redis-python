@@ -105,15 +105,22 @@ def main():
             return res
 
     cmdQ = []
+    charging = False
     waitstarts = []
     varDict = {}
-    charging = 0
     # for some reason, blpop was not able to see the varDict when it was in 'respond',
     # and all the other commands were able??
     # todo: read up on variable scope, look at others' implementations
 
 
     def respond(conn):
+        print(f'cmdQ is', cmdQ)
+        try:
+            print(f'charging is', charging) 
+            #why does waitstarts work, but charging doesn't? I get the scope error
+        except:
+            charging = False
+
         outline = None
         exps = {}
         while True:
@@ -126,17 +133,18 @@ def main():
                     cmd = inline[0].lower()
                     print('command is', cmd)
 
-                    if charging == True:
+                    if cmd == 'exec':
+                        if not charging:
+                            outline = app.respParse.enErr('ERR EXEC without MULTI')
+                        elif not cmdQ: 
+                            outline = app.respParse.encode_out([])
+                        charging = False
+
+                    elif charging:
+                        print('charging is', charging)
                         cmdQ.append(cmd)
                         outline = app.respParse.encode_out('QUEUED')
                     
-                    if cmd == 'exec':
-                        if charging == False:
-                            outline = app.respParse.enErr('ERR EXEC without MULTI')
-                        elif cmdQ ==[]:
-                            res = []
-                        charging = False
-                        outline = app.respParse.encode_out(res)
                     
 
                     elif cmd == 'echo':

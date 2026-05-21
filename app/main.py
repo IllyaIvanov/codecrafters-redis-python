@@ -647,10 +647,9 @@ def main():
         else:
             reNo = responds[-1] + 1
 
-        if args.port:
-            portNo = args.port
-        else:
-            portNo = 6379
+        
+        print('portNo is', portNo)
+
         responds.append(reNo)
         #main loop
         while True:
@@ -675,6 +674,10 @@ def main():
 
             # conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
+    if args.port:
+        portNo = args.port
+    else:
+        portNo = 6379
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
     while True:

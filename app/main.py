@@ -18,8 +18,14 @@ def main():
     waitstarts = []
     responds=[]
     varDict = {}
-    defDict = {'charging' : False, 'cmdQ' : [], 'keyQ' : []}
     qDicts = {} #{'charging' : False, 'cmdQ' : []}
+
+    def defaultize(qdict):
+        qdict['charging'] = False
+        qdict['cmdQ'] = []
+        qdict['keyQ'] = []
+
+
 
     class stream:
         def __init__(self):
@@ -124,19 +130,21 @@ def main():
         return res
 
 
-    def exCmd(inline, feedee):
-        reNo = feedee
-        #print('exCmd thinks that reNo is', feedee)
-        if qDicts.get(feedee) == None:
-            qDicts[feedee] = defDict
-        print('reNo', reNo, ':', 'varDict is', qDicts[feedee])
+    def exCmd(inline, reNo):
+        print(f'reNo {reNo}: executing {inline[0].upper()}')
+        #print('exCmd thinks that reNo is', reNo)
+        if qDicts.get(reNo) == None:
+            qDicts[reNo] = {}
+            defaultize(qDicts[reNo])
+        print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
         #exCmd sees it, until I refer to it from respond. hm.
         if type(inline) == list:
             cmd = inline[0].lower()
         else:
             cmd = inline
-            print('reNo', reNo, ':', 'command is', cmd.upper())
-            print('reNo', reNo, ': inline is', inline)
+        print('reNo', reNo, ':', 'command is', cmd.upper())
+        print('reNo', reNo, ': inline is', inline)
+
         
         #solved: http://christophe.vandeplas.com/2011/06/python-global-variables.html
         #varDict is not assigned within the function, so it ?remains
@@ -144,47 +152,50 @@ def main():
 
         if cmd == 'exec':
             print('reNo', reNo, ':', 'Casting:')
-            print('reNo', reNo, ': qDict is', qDicts.get(feedee))
-            if not qDicts[feedee]['charging']:
+            print('reNo', reNo, ': qDict is', qDicts.get(reNo))
+            if not qDicts[reNo]['charging']:
                 return('ERR EXEC without MULTI', 'simple_error')
                 #outline = app.respParse.enErr('ERR EXEC without MULTI')
-            qDicts[feedee]['charging'] = False
-            if not qDicts[feedee]['cmdQ']:
+            qDicts[reNo]['charging'] = False
+            if not qDicts[reNo]['cmdQ']:
                 return([],'array')
                 #outline = app.respParse.encode_out([])
             else:
                 res = []
-                while qDicts[feedee]['cmdQ']:
-                    print('reNo', reNo, ':', 'Casting', qDicts[feedee]['cmdQ'][0])
-                    res.append(exCmd(qDicts[feedee]['cmdQ'][0], feedee))
-                    qDicts[feedee]['cmdQ'] = qDicts[feedee]['cmdQ'][1:]
-                    print('reNo', reNo, ':', 'Commands left:', qGet(feedee))
+                while qDicts[reNo]['cmdQ']:
+                    print('reNo', reNo, ':', 'Casting', qDicts[reNo]['cmdQ'][0])
+                    res.append(exCmd(qDicts[reNo]['cmdQ'][0], reNo))
+                    qDicts[reNo]['cmdQ'] = qDicts[reNo]['cmdQ'][1:]
+                    print('reNo', reNo, ':', 'Commands left:', qGet(reNo))
                 return (res, 'result_list') 
 
+        elif cmd == 'multi':
+            qDicts[reNo]['charging'] = True
+            print('reNo', reNo, ':', 'Charging:')
+            return('OK', 'simple_string')
+
         elif cmd == 'discard':
-            if qDicts[feedee]['charging'] == True:
-                qDicts[feedee] = defDict
+            if qDicts[reNo]['charging'] == True:
+                defaultize(qDicts[reNo])
                 return('OK','simple_string')
             else:
                 return('ERR DISCARD without MULTI','simple_error')
 
         elif cmd == 'watch':
-            if qDicts[feedee]['charging']:
+            if qDicts[reNo]['charging']:
                 return ('ERR WATCH inside MULTI is not allowed', 'simple_error')
             else:
                 for i in inline[1:]:
-                    qDicts[feedee]['keyQ'].append(i)
+                    qDicts[reNo]['keyQ'].append(i)
                     return('OK','simple_string')
 
-
-
-            return ('OK', 'simple_string')
-
-           #outline = app.respParse.enSimple('QUEUED')
-
-        elif qDicts[feedee]['charging']:
-            print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qGet(feedee))
-            qDicts[feedee]['cmdQ'].append(inline)
+        elif qDicts[reNo]['charging']:
+            #print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qGet(reNo))
+            print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to',
+                  qDicts[reNo]['cmdQ'])
+            qDicts[reNo]['cmdQ'].append(inline)
+            for i in qDicts:
+                print(f'qDict {i} is {qDicts[i]}')
             return('QUEUED', 'simple_string')
 
         elif cmd == 'echo':
@@ -566,11 +577,6 @@ def main():
                     return(res,'integer')
                     #outline = app.respParse.encode_out(res)
 
-        elif cmd == 'multi':
-            qDicts[feedee]['charging'] = True
-            print('reNo', reNo, ':', 'Charging:')
-            return('OK', 'simple_string')
-            #outline = app.respParse.enSimple('OK')
 
         else:
             return('ERR Unknown command', 'simple_error')
@@ -578,7 +584,7 @@ def main():
 
     def respond(conn):
         if responds == []:
-            reNo = 0
+            reNo = 1
         else:
             reNo = responds[-1] + 1
         responds.append(reNo)
@@ -590,8 +596,6 @@ def main():
                 connFD = connection.fileno()
                 print(f'main: connection is {connection}, reNo is {reNo}')
                 inline = app.respParse.decode_resp(data)
-                print( reNo, 'inline is', inline)
-                print('respond number is', reNo)
                 print('all the responses are ', responds)
                 res = exCmd(inline, reNo)
                 outline = app.respParse.encode_out(res)

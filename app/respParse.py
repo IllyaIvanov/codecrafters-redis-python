@@ -33,11 +33,11 @@ def enErr(toSend):
     return b'-' + toSend.encode("utf-8") + b'\r\n'
 
 def encode_out(result):
-    print(result)
+    #print(result)
     toSend = result[0]
     outType = result[1]
 
-    print('toSend is ', toSend)
+    #print('toSend is ', toSend)
     body = b''
     header = tail = b'\r\n'
     body = str(toSend).encode("utf-8")
@@ -49,7 +49,7 @@ def encode_out(result):
         elif isinstance(toSend, str):
             outType = 'bulk_string'
 
-    print('outType is', outType)
+    #print('outType is', outType)
     match outType:
         case 'result_list':
             if not toSend:
@@ -69,7 +69,7 @@ def encode_out(result):
             header = b'$' + str(len(toSend)).encode("utf-8") + header
         case 'array':
             body = b''
-        # print('encoding list', toSend)
+        #print('encoding list', toSend)
             if not toSend:
                 return b'*0\r\n'
             header = b'*' + str(len(toSend)).encode("utf-8") + header

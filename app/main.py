@@ -675,7 +675,7 @@ def main():
             # conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
     if args.port:
-        portNo = args.port
+        portNo = int(args.port)
     else:
         portNo = 6379
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)

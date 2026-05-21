@@ -18,6 +18,7 @@ def main():
     waitstarts = []
     responds=[]
     varDict = {}
+    defDict = {'charging' : False, 'cmdQ' : [], 'keyQ' : []}
     qDicts = {} #{'charging' : False, 'cmdQ' : []}
 
     class stream:
@@ -127,7 +128,7 @@ def main():
         reNo = feedee
         #print('exCmd thinks that reNo is', feedee)
         if qDicts.get(feedee) == None:
-            qDicts[feedee] = {'charging' : False, 'cmdQ' : []}
+            qDicts[feedee] = defDict
         print('reNo', reNo, ':', 'varDict is', qDicts[feedee])
         #exCmd sees it, until I refer to it from respond. hm.
         if type(inline) == list:
@@ -162,12 +163,21 @@ def main():
 
         elif cmd == 'discard':
             if qDicts[feedee]['charging'] == True:
-                qDicts[feedee] = {'charging' : False, 'cmdQ' : []}
+                qDicts[feedee] = defDict
                 return('OK','simple_string')
             else:
                 return('ERR DISCARD without MULTI','simple_error')
 
         elif cmd == 'watch':
+            if qDicts[feedee]['charging']:
+                return ('ERR WATCH inside MULTI is not allowed', 'simple_error')
+            else:
+                for i in inline[1:]:
+                    qDicts[feedee]['keyQ'].append(i)
+                    return('OK','simple_string')
+
+
+
             return ('OK', 'simple_string')
 
            #outline = app.respParse.enSimple('QUEUED')

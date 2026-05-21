@@ -169,13 +169,14 @@ def main():
         #varDict is not assigned within the function, so it ?remains
         #global? // I have no idea, why varDict is accessible, but charging isn't
 
-        if cmd == 'exec': 
-            if keyWatchTimes.get(reNo): 
-                print(keyWatchTimes[reNo])
-                for i in keyWatchTimes[reNo]: # i is [key, wTime]
-                    print(f'reNo {reNo}: key {i} was watched at {keyWatchTimes[reNo][i]}')
+        if cmd == 'exec':
+            thisWatch = keyWatchTimes.get(reNo)
+            if thisWatch:
+                keyWatchTimes[reNo] = {}
+                for i in thisWatch: # i is [key, wTime]
+                    print(f'reNo {reNo}: key {i} was watched at {thisWatch[i]}')
                     print(f'reNo {reNo}: key {i} was changed at {keyModTimes.get(i)}')
-                    if keyWatchTimes[reNo][i] < keyModTimes[i]:
+                    if thisWatch[i] < keyModTimes[i]:
                         defaultize(qDicts[reNo])
                         return ('', 'null_array')
             #print('reNo', reNo, ':', 'Casting:') #print('reNo', reNo, ': qDict is', qDicts.get(reNo))

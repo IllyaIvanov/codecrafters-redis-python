@@ -167,6 +167,9 @@ def main():
             else:
                 return('ERR DISCARD without MULTI','simple_error')
 
+        elif cmd == 'watch':
+            return ('OK', 'simple_string')
+
            #outline = app.respParse.enSimple('QUEUED')
 
         elif qDicts[feedee]['charging']:

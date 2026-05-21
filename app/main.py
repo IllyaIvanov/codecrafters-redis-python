@@ -204,6 +204,7 @@ def main():
         elif cmd == 'discard':
             if qDicts[reNo]['charging'] == True:
                 defaultize(qDicts[reNo])
+                keyWatchTimes[reNo] = {}
                 return('OK','simple_string')
             else:
                 return('ERR DISCARD without MULTI','simple_error')

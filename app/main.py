@@ -2,6 +2,19 @@
 # solved  how to do proper case switch, and not 10000 elifs? --- match x case 10 case 20...
 # solved: importing files doesn't work --- codecrafters needs "app.respParse", not just "respParse"
 
+#varDict\[[^[]*]\s*=
+#search for modified varDict things
+
+#ok, so I... don't think the key can be modified, and then restored within a
+#same command? so rough way is to compare vardict before with vardict after,
+# and mark the changed keys
+#or mark all the var-changing commands? tbh yeah, that might be
+
+######################
+'''
+Isn't it time to just... define commands as a class? with tags and such,
+"modifying", :
+'''
 import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
@@ -11,19 +24,21 @@ import app.respParse
 
 
 def main():
+    #consts
+    dMod = ('incr', 'xadd', 'blpop', 'lpop', 'lpush', 'rpush', 'exec')
 
-    #global clIDs = [] -- doesn't work that way, you use "global" to retrieve
-    clIDs = []
     exps = {}
     waitstarts = []
-    responds=[]
+    responds=[] #client ids essentially
     varDict = {}
     qDicts = {} #{'charging' : False, 'cmdQ' : []}
+    keyWatchTimes = {}
+    keyModTimes = {}
 
     def defaultize(qdict):
         qdict['charging'] = False
         qdict['cmdQ'] = []
-        qdict['keyQ'] = []
+        qdict['keyQ'] = {}
 
 
 
@@ -127,32 +142,43 @@ def main():
         res = []
         for i in qDicts[feedee]['cmdQ']:
             res.append(i[0])
+        res = [elt[0] for elt in qDicts[feedee]['cmdQ']]
         return res
 
 
-    def exCmd(inline, reNo):
+    def exCmd(inline, reNo): 
         print(f'reNo {reNo}: executing {inline[0].upper()}')
         #print('exCmd thinks that reNo is', reNo)
         if qDicts.get(reNo) == None:
             qDicts[reNo] = {}
             defaultize(qDicts[reNo])
-        print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
+        if keyWatchTimes.get(reNo) == None:
+            keyWatchTimes[reNo] = {}
+
+       #print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
         #exCmd sees it, until I refer to it from respond. hm.
         if type(inline) == list:
             cmd = inline[0].lower()
         else:
             cmd = inline
-        print('reNo', reNo, ':', 'command is', cmd.upper())
-        print('reNo', reNo, ': inline is', inline)
+       #print('reNo', reNo, ':', 'command is', cmd.upper())
+       #print('reNo', reNo, ': inline is', inline)
 
-        
+       
         #solved: http://christophe.vandeplas.com/2011/06/python-global-variables.html
         #varDict is not assigned within the function, so it ?remains
         #global? // I have no idea, why varDict is accessible, but charging isn't
 
-        if cmd == 'exec':
-            print('reNo', reNo, ':', 'Casting:')
-            print('reNo', reNo, ': qDict is', qDicts.get(reNo))
+        if cmd == 'exec': 
+            if keyWatchTimes.get(reNo): 
+                print(keyWatchTimes[reNo])
+                for i in keyWatchTimes[reNo]: # i is [key, wTime]
+                    print(f'reNo {reNo}: key {i} was watched at {keyWatchTimes[reNo][i]}')
+                    print(f'reNo {reNo}: key {i} was changed at {keyModTimes.get(i)}')
+                    if keyWatchTimes[reNo][i] < keyModTimes[i]:
+                        defaultize(qDicts[reNo])
+                        return ('', 'null_array')
+            #print('reNo', reNo, ':', 'Casting:') #print('reNo', reNo, ': qDict is', qDicts.get(reNo))
             if not qDicts[reNo]['charging']:
                 return('ERR EXEC without MULTI', 'simple_error')
                 #outline = app.respParse.enErr('ERR EXEC without MULTI')
@@ -163,15 +189,15 @@ def main():
             else:
                 res = []
                 while qDicts[reNo]['cmdQ']:
-                    print('reNo', reNo, ':', 'Casting', qDicts[reNo]['cmdQ'][0])
+                   #print('reNo', reNo, ':', 'Casting', qDicts[reNo]['cmdQ'][0])
                     res.append(exCmd(qDicts[reNo]['cmdQ'][0], reNo))
                     qDicts[reNo]['cmdQ'] = qDicts[reNo]['cmdQ'][1:]
-                    print('reNo', reNo, ':', 'Commands left:', qGet(reNo))
-                return (res, 'result_list') 
+                   #print('reNo', reNo, ':', 'Commands left:', qGet(reNo))
+                return (res, 'result_list')
 
         elif cmd == 'multi':
             qDicts[reNo]['charging'] = True
-            print('reNo', reNo, ':', 'Charging:')
+           #print('reNo', reNo, ':', 'Charging:')
             return('OK', 'simple_string')
 
         elif cmd == 'discard':
@@ -185,17 +211,24 @@ def main():
             if qDicts[reNo]['charging']:
                 return ('ERR WATCH inside MULTI is not allowed', 'simple_error')
             else:
-                for i in inline[1:]:
-                    qDicts[reNo]['keyQ'].append(i)
-                    return('OK','simple_string')
+                '''
+                wlst = list(inline[1:]) #in case len(inline) == 2) ???isn't
+                there always just one key???
+                '''
+                i = inline[1]
+                print(f'reNo {reNo}: now watching {i}')
+                print(
+                    f'keyWatchTimes[{reNo}] is currently'
+                    f'{keyWatchTimes.get(reNo)}'
+                    )
+                keyWatchTimes[reNo][i] = time.time()
+            return('OK','simple_string')
 
         elif qDicts[reNo]['charging']:
             #print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qGet(reNo))
-            print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to',
-                  qDicts[reNo]['cmdQ'])
+           #print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qDicts[reNo]['cmdQ'])
             qDicts[reNo]['cmdQ'].append(inline)
-            for i in qDicts:
-                print(f'qDict {i} is {qDicts[i]}')
+            #for i in qDicts: #print(f'qDict {i} is {qDicts[i]}')
             return('QUEUED', 'simple_string')
 
         elif cmd == 'echo':
@@ -212,6 +245,7 @@ def main():
             return('PONG', 'simple_string')
             #outline = b'+PONG\r\n'
 
+        #modifying varDict
         elif cmd == 'set':
             #print('varDict is', varDict)
             #outline = b'+OK\r\n'
@@ -231,19 +265,13 @@ def main():
                     elif oName == 'ex':
                         exps[vName] = datetime.now() + \
                             timedelta(seconds=oVal)
-                        #print('will expire at', exps[vName])
-                        #print('exps are', exps)
+            keyModTimes[vName] = time.time()
             varDict[vName] = vVal
             return ('OK', 'simple_string')
-            #print(f'set {vName} to {varDict.get(vName)}')
-            #print('varDict is', varDict)
 
         elif cmd == 'get':
-            #print('varDict is', varDict)
             vName = inline[1]
-            #print('vName is', vName)
             vVal = varDict.get(vName)
-            #print('vVal is', vVal)
             if vVal != None:
                 if exps.get(vName) and exps.get(vName) < datetime.now():
                     #print(f'key {vName} expired')
@@ -260,10 +288,12 @@ def main():
                 return([], 'null_bulk_string')
                 #outline = b'$-1\r\n'
 
+        #modifying varDict
         elif cmd == 'rpush':
             #print('before rpush, varDict is', varDict)
             listName = inline[1]  # making the list we add
             if varDict.get(listName) == None:
+                keyModTimes[listName] = time.time()
                 varDict[listName] = []
             if len(inline) == 3:
                 listExtra = [inline[2]]
@@ -272,10 +302,12 @@ def main():
                 # adding the new part to the existing list
             l = len(varDict[listName]) + len(listExtra)
             #print(f'adding {listExtra} to {listName}, total length is {l}')
+            keyModTimes[listName] = time.time()
             varDict[listName] += listExtra
             return(l, 'integer')
             #outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
+        #modifying varDict
         elif cmd == 'lpush':
             listName = inline[1]  # making the list we add
             if len(inline) == 3:
@@ -284,9 +316,11 @@ def main():
                 listExtra = inline[:1:-1]
             if varDict.get(listName) != None:
                 # adding the new part to the existing list
+                keyModTimes[listName] = time.time()
                 varDict[listName] = listExtra + varDict[listName]
             else:
                 # if no list, make it
+                keyModTimes[listName] = time.time()
                 varDict[listName] = listExtra
             return(len(varDict[listName]), 'integer')
             #outline = b':' + str(l).encode("utf-8") + b'\r\n'
@@ -323,6 +357,7 @@ def main():
                 return(len(tList), 'integer')
                 #outline = b':' + str(l).encode("utf-8") + b'\r\n'
 
+        #modifying varDict
         elif cmd == 'lpop':
             listName = inline[1]
             if varDict.get(listName) == None:
@@ -330,6 +365,7 @@ def main():
                 #outline =  b'-1\r\n'
             if len(inline) <= 2:
                 res = varDict[listName][0]
+                keyModTimes[listName] = time.time()
                 varDict[listName] = varDict[listName][1:]
                 return(res,'unknown')
                 outline = app.respParse.encode_out(
@@ -338,14 +374,17 @@ def main():
                 k = int(inline[2])
                 if len(varDict.get(listName)) <= k:
                     res = varDict[listName]
+                    keyModTimes[listName] = time.time()
                     varDict[listName] = []
                     return(res, 'array')
                     #outline = app.respParse.encode_out( varDict[listName])
                 else:
                     res = varDict[listName][:k]
+                    keyModTimes[listName] = time.time()
                     varDict[listName] = varDict[listName][k:]
                     return(res, 'array')
 
+        #modifying varDict
         elif cmd == 'blpop':  # todo: make commands into functions of string,
             # read the listname and timeout
             # literally just copying the rpush
@@ -391,6 +430,7 @@ def main():
             if a != 'expired':
                 outlist = [listName, varDict[listName][0]]
                 #outline = app.respParse.encode_out(outlist)
+                keyModTimes[listName] = time.time()
                 varDict[listName] = varDict[listName][1:]
                 waitstarts.remove(waitcount)
                 return(outlist, 'array')
@@ -438,6 +478,7 @@ def main():
                 return(tip,'simple_string')
                 #outline = app.respParse.enSimple(tip)
 
+        #modifying varDict
         elif cmd == 'xadd':
             errMsg = ''
             streamKey = inline[1]
@@ -478,14 +519,19 @@ def main():
             else:
                 if varDict.get(streamKey) == None:
                     #print('stream is new')
+                    keyModTimes[streamKey] = time.time()
                     varDict[streamKey] = stream()
                 # else:
                     #print('stream isn\'t new')
+                keyModTimes[streamKey] = time.time()
                 varDict[streamKey].idMin = idVal
                 # todo get read of idMin, that's just the last element of ids
+                keyModTimes[streamKey] = time.time()
                 varDict[streamKey].ids.append(streamID)
+                keyModTimes[streamKey] = time.time()
                 varDict[streamKey].data[streamID] = {}
-                for i in range(3, len(inline), 2):
+                for i in range(3, len(inline), 2): 
+                    keyModTimes[i] = time.time()
                     varDict[streamKey].data[streamID][str(
                         inline[i])] = inline[i+1]
                 #print(f'stream \'{streamKey}\' ids are now {varDict[streamKey].ids}')
@@ -526,7 +572,7 @@ def main():
             for j in range(len(ids)):
                 if ids[j] == '$':
                     ids[j] = varDict[keys[j]].ids[-1]
-            
+           
             res = []
             while not keys and (timeExp == True or time.time() < timeExp):
                 res = []
@@ -552,6 +598,7 @@ def main():
                 # todo --- encode empty list like that?
            #print('starting xrange')
 
+        #modifying varDict
         elif cmd == 'incr':
             varKey = inline[1]
             #print('varKey is', varKey)
@@ -559,6 +606,7 @@ def main():
             isInt = True
             if varDict.get(varKey) == None:
                 #print('creating variable', varKey)
+                keyModTimes[varKey] = time.time()
                 varDict[varKey] = 1
                 res = 1
                 return(res,'integer')
@@ -566,11 +614,13 @@ def main():
             else:
                 try:
                     varDict[varKey] = int(varDict[varKey])
+                    keyModTimes[varKey] = time.time()
                 except:
                     isInt = False
                     #print('Error: the key is not numeric')
                     return('ERR value is not an integer or out of range','simple_error')
                 if isInt:
+                    keyModTimes[varKey] = time.time()
                     varDict[varKey] += 1
                     res = varDict[varKey]
                     #print('res =', res)
@@ -583,24 +633,33 @@ def main():
             #outline = data
 
     def respond(conn):
+        dataCopy = {}
+        #logging the client id
         if responds == []:
             reNo = 1
         else:
             reNo = responds[-1] + 1
         responds.append(reNo)
-        print('reNo', reNo, ':', 'starting respond number', reNo)
+        #main loop
         while True:
             data = conn.recv(4096)
             if data:
                 #timeIn = datetime.now()
                 connFD = connection.fileno()
-                print(f'main: connection is {connection}, reNo is {reNo}')
                 inline = app.respParse.decode_resp(data)
-                print('all the responses are ', responds)
+                print('inline is', inline)
+                if inline[0] in dMod:
+                    for i in varDict: #for i in keyWatchTimes:
+                        dataCopy[i] = varDict[i]
                 res = exCmd(inline, reNo)
+                if dataCopy:
+                    for i in dataCopy:
+                        if dataCopy[i] != varDict[i]:
+                            keyModTimes[i] = time.time()
+                dataCopy = {}
                 outline = app.respParse.encode_out(res)
                 conn.send(outline)
-                print('sent outline is', outline)
+               #print('sent outline is', outline)
 
             # conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
@@ -611,15 +670,14 @@ def main():
         if not connection:
             break
 
-       # print('its type is', type(getConn))
+       ##print('its type is', type(getConn))
        # for i in getConn:
             #print(f'getConn has element {i}')
 
         #print('connection\'s fd is ', socket.recv_fds(connection, 1024, 1024))
         # clients have different 'fd'? 'connection, addr' is not preserved
         thr = threading.Thread(target=respond, args=(connection,))
-        if thr:
-            print(thr)
+        #if thr: #print(thr)
         thr.start()
 
 if __name__ == "__main__":

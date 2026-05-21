@@ -223,6 +223,9 @@ def main():
                     )
                 keyWatchTimes[reNo][i] = time.time()
             return('OK','simple_string')
+        elif cmd == 'unwatch':
+            keyWatchTimes[reNo] = {}
+            return('OK','simple_string')
 
         elif qDicts[reNo]['charging']:
             #print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qGet(reNo))

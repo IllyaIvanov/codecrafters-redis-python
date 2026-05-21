@@ -19,9 +19,11 @@ import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
 import time
+import argparse #to connect to a different port
 
-import app.respParse
-
+parser = argparse.ArgumentParser()
+parser.add_argument("--port", help="Connection port")
+args = parser.parse_args()
 
 def main():
     #consts
@@ -644,6 +646,11 @@ def main():
             reNo = 1
         else:
             reNo = responds[-1] + 1
+
+        if args.port:
+            portNo = args.port
+        else:
+            portNo = 6379
         responds.append(reNo)
         #main loop
         while True:
@@ -668,7 +675,7 @@ def main():
 
             # conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
-    server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
+    server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
     while True:
         connection, _ = server_socket.accept()

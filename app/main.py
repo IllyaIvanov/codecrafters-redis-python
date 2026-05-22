@@ -36,6 +36,7 @@ def main():
     waitstarts = []
     responds={} #client ids essentially
     varDict = {}
+    repliDict = {}
     qDicts = {} #{'charging' : False, 'cmdQ' : []}
     
 
@@ -686,15 +687,19 @@ def main():
                     return(res,'integer')
                     #outline = app.respParse.encode_out(res)
 
+        elif cmd == 'info':
+            arg = inline[1]
+            res = ''
+            if arg == 'replication':
+                for i in repliDict:
+                    res += i + repliDict[i] : ':'
+            return(res,'bulk_string')
 
         else:
             return('ERR Unknown command', 'simple_error')
             #outline = data
 
     def respond(conn):
-
-        dataCopy = {}
-        #logging the client id
         print(f'responds[portNo] are {responds.get(portNo)}')
         if responds.get(portNo) == None:
             subNo = 1
@@ -714,15 +719,7 @@ def main():
                 connFD = connection.fileno()
                 inline = app.respParse.decode_resp(data)
                 print('inline is', inline)
-                if inline[0] in dMod:
-                    for i in varDict: #for i in keyWatchTimes:
-                        dataCopy[i] = varDict[i]
                 res = exCmd(inline, reNo)
-                if dataCopy:
-                    for i in dataCopy:
-                        if dataCopy[i] != varDict[i]:
-                            kematri.modKey(i)
-                dataCopy = {}
                 outline = app.respParse.encode_out(res)
                 conn.send(outline)
                #print('sent outline is', outline)
@@ -734,6 +731,8 @@ def main():
     else:
         portNo = 6379
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
+
+    repliDict[role] = 'master'
 
     while True:
         connection, _ = server_socket.accept()

@@ -1,6 +1,7 @@
-# solved do a separate resp parser
-# solved  how to do proper case switch, and not 10000 elifs? --- match x case 10 case 20...
-# solved: importing files doesn't work --- codecrafters needs "app.respParse", not just "respParse"
+# is there ever need to access qDict of one client from another? I don't think
+# so
+
+#almost any dict[reNo] can just be this client's local dict
 
 #varDict\[[^[]*]\s*=
 #search for modified varDict things
@@ -30,13 +31,23 @@ def main():
     #consts
     dMod = ('incr', 'xadd', 'blpop', 'lpop', 'lpush', 'rpush', 'exec')
 
+    clIDs = []
     exps = {}
     waitstarts = []
-    responds=[] #client ids essentially
+    responds={} #client ids essentially
     varDict = {}
     qDicts = {} #{'charging' : False, 'cmdQ' : []}
-    keyWatchTimes = {}
-    keyModTimes = {}
+    
+
+    '''
+    all of this kinda sucks
+    how about mxn table? keys, clids
+    -1 bad, 1 watched, 0 nothing
+    okay, you give a try to what you have now, and if not --- do the keyTrack
+    matrix
+    ...
+    yeah, making sure everyone is everywhere only once is garbage
+    '''
 
     def defaultize(qdict):
         qdict['charging'] = False
@@ -148,54 +159,99 @@ def main():
         res = [elt[0] for elt in qDicts[feedee]['cmdQ']]
         return res
 
+    class keyTrackMatrix:
+        def __init__(self):
+            self.keyNo = 0
+            self.clNo = 0
+            self.table = []
+            self.keyndex = {}
+        def addKey(self, key):
+            if self.keyndex.get(key) != None:
+                return
+            self.keyndex[key] = self.keyNo
+            self.keyNo += 1
+            self.table.append([0]*self.clNo)
+        def addClient(self):
+            self.clNo += 1
+            for i in range(self.keyNo):
+                self.table[i].append(0)
+        def setWatch(self, client_ind, key):
+            self.addKey(key)
+            print(
+                    f'key is {key}, keyndex is {self.keyndex},'
+                    f'and client index is {client_ind},'
+                    f'the table is {self.table}'
+                 )
+            self.table[self.keyndex[key]][client_ind] = 1
+        def modKey(self,key):
+            if self.keyndex.get(key) != None:
+                self.table[self.keyndex[key]] = [-abs(i) for i in self.table[self.keyndex[key]]]
+            else:
+                self.addKey(key)
+        def clearClient(self,client_ind):
+            for i in range(self.keyNo):
+                self.table[i][client_ind] = 0
+        def watchFailed(self,client_ind):
+            print('table is', self.table)
+            print(f'keyndex is {self.keyndex}')
+            res = False
+            for i in self.keyndex:
+                if self.table[self.keyndex[i]][client_ind] == -1:
+                    print(f'key {i} was changed under reNo {client_ind}\'s watch')
+                    self.clearClient(client_ind)
+                    res = True
+            return res
 
-    def exCmd(inline, reNo): 
+
+
+
+    #def keyMod(key):
+    #    if not key in keyNos:
+    #        keyNos[key] = len(keyTrack)
+    #        keyTrack.append([key] + [0] * ) #can keep the key cause client ids start with 1
+    #    else:
+    #        print(f'key {key} wasn\'t watched')
+    #    print(f'reNo {clID}: watchstates {keyWatchers[key]}, losers
+    #          {keyLosers[key]}')
+
+    kematri = keyTrackMatrix()
+
+    def exCmd(inline, reNo):
         print(f'reNo {reNo}: executing {inline[0].upper()}')
         #print('exCmd thinks that reNo is', reNo)
         if qDicts.get(reNo) == None:
             qDicts[reNo] = {}
             defaultize(qDicts[reNo])
-        if keyWatchTimes.get(reNo) == None:
-            keyWatchTimes[reNo] = {}
 
-       #print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
+        print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
         #exCmd sees it, until I refer to it from respond. hm.
         if type(inline) == list:
             cmd = inline[0].lower()
         else:
             cmd = inline
-       #print('reNo', reNo, ':', 'command is', cmd.upper())
-       #print('reNo', reNo, ': inline is', inline)
-
-       
-        #solved: http://christophe.vandeplas.com/2011/06/python-global-variables.html
-        #varDict is not assigned within the function, so it ?remains
-        #global? // I have no idea, why varDict is accessible, but charging isn't
 
         if cmd == 'exec':
-            thisWatch = keyWatchTimes.get(reNo)
-            if thisWatch:
-                keyWatchTimes[reNo] = {}
-                for i in thisWatch: # i is [key, wTime]
-                    print(f'reNo {reNo}: key {i} was watched at {thisWatch[i]}')
-                    print(f'reNo {reNo}: key {i} was changed at {keyModTimes.get(i)}')
-                    if thisWatch[i] < keyModTimes[i]:
-                        defaultize(qDicts[reNo])
-                        return ('', 'null_array')
+            qDict = {}
+            for i in qDicts[reNo]:
+                qDict[i] = qDicts[reNo][i]
+            defaultize(qDicts[reNo])
+            print(f'qDict is', qDict)
+            if kematri.watchFailed(reNo):
+                    return ('', 'null_array')
             #print('reNo', reNo, ':', 'Casting:') #print('reNo', reNo, ': qDict is', qDicts.get(reNo))
-            if not qDicts[reNo]['charging']:
+            if not qDict['charging']:
                 return('ERR EXEC without MULTI', 'simple_error')
                 #outline = app.respParse.enErr('ERR EXEC without MULTI')
-            qDicts[reNo]['charging'] = False
-            if not qDicts[reNo]['cmdQ']:
+            qDict['charging'] = False
+            if not qDict['cmdQ']:
                 return([],'array')
                 #outline = app.respParse.encode_out([])
             else:
                 res = []
-                while qDicts[reNo]['cmdQ']:
-                   #print('reNo', reNo, ':', 'Casting', qDicts[reNo]['cmdQ'][0])
-                    res.append(exCmd(qDicts[reNo]['cmdQ'][0], reNo))
-                    qDicts[reNo]['cmdQ'] = qDicts[reNo]['cmdQ'][1:]
+                while qDict['cmdQ']:
+                   #print('reNo', reNo, ':', 'Casting', qDict['cmdQ'][0])
+                    res.append(exCmd(qDict['cmdQ'][0], reNo))
+                    qDict['cmdQ'] = qDict['cmdQ'][1:]
                    #print('reNo', reNo, ':', 'Commands left:', qGet(reNo))
                 return (res, 'result_list')
 
@@ -207,7 +263,7 @@ def main():
         elif cmd == 'discard':
             if qDicts[reNo]['charging'] == True:
                 defaultize(qDicts[reNo])
-                keyWatchTimes[reNo] = {}
+                kematri.clearClient(reNo)
                 return('OK','simple_string')
             else:
                 return('ERR DISCARD without MULTI','simple_error')
@@ -216,20 +272,15 @@ def main():
             if qDicts[reNo]['charging']:
                 return ('ERR WATCH inside MULTI is not allowed', 'simple_error')
             else:
-                '''
-                wlst = list(inline[1:]) #in case len(inline) == 2) ???isn't
-                there always just one key???
-                '''
-                i = inline[1]
-                print(f'reNo {reNo}: now watching {i}')
-                print(
-                    f'keyWatchTimes[{reNo}] is currently'
-                    f'{keyWatchTimes.get(reNo)}'
-                    )
-                keyWatchTimes[reNo][i] = time.time()
+                toWatch = list(inline[1:])
+                print('reNo is', reNo)
+                for i in toWatch:
+                    print(f'reNo {reNo}+1: watching key {i}')
+                    kematri.setWatch(reNo, i)
             return('OK','simple_string')
+
         elif cmd == 'unwatch':
-            keyWatchTimes[reNo] = {}
+            kematri.clearClient(reNo)
             return('OK','simple_string')
 
         elif qDicts[reNo]['charging']:
@@ -273,7 +324,7 @@ def main():
                     elif oName == 'ex':
                         exps[vName] = datetime.now() + \
                             timedelta(seconds=oVal)
-            keyModTimes[vName] = time.time()
+            kematri.modKey(vName)
             varDict[vName] = vVal
             return ('OK', 'simple_string')
 
@@ -301,7 +352,7 @@ def main():
             #print('before rpush, varDict is', varDict)
             listName = inline[1]  # making the list we add
             if varDict.get(listName) == None:
-                keyModTimes[listName] = time.time()
+                kematri.modKey(listName)
                 varDict[listName] = []
             if len(inline) == 3:
                 listExtra = [inline[2]]
@@ -310,7 +361,7 @@ def main():
                 # adding the new part to the existing list
             l = len(varDict[listName]) + len(listExtra)
             #print(f'adding {listExtra} to {listName}, total length is {l}')
-            keyModTimes[listName] = time.time()
+            kematri.modKey(listName)
             varDict[listName] += listExtra
             return(l, 'integer')
             #outline = b':' + str(l).encode("utf-8") + b'\r\n'
@@ -324,11 +375,11 @@ def main():
                 listExtra = inline[:1:-1]
             if varDict.get(listName) != None:
                 # adding the new part to the existing list
-                keyModTimes[listName] = time.time()
+                kematri.modKey(listName)
                 varDict[listName] = listExtra + varDict[listName]
             else:
                 # if no list, make it
-                keyModTimes[listName] = time.time()
+                kematri.modKey(listName)
                 varDict[listName] = listExtra
             return(len(varDict[listName]), 'integer')
             #outline = b':' + str(l).encode("utf-8") + b'\r\n'
@@ -373,7 +424,7 @@ def main():
                 #outline =  b'-1\r\n'
             if len(inline) <= 2:
                 res = varDict[listName][0]
-                keyModTimes[listName] = time.time()
+                kematri.modKey(listName)
                 varDict[listName] = varDict[listName][1:]
                 return(res,'unknown')
                 outline = app.respParse.encode_out(
@@ -382,13 +433,13 @@ def main():
                 k = int(inline[2])
                 if len(varDict.get(listName)) <= k:
                     res = varDict[listName]
-                    keyModTimes[listName] = time.time()
+                    kematri.modKey(listName)
                     varDict[listName] = []
                     return(res, 'array')
                     #outline = app.respParse.encode_out( varDict[listName])
                 else:
                     res = varDict[listName][:k]
-                    keyModTimes[listName] = time.time()
+                    kematri.modKey(listName)
                     varDict[listName] = varDict[listName][k:]
                     return(res, 'array')
 
@@ -438,7 +489,7 @@ def main():
             if a != 'expired':
                 outlist = [listName, varDict[listName][0]]
                 #outline = app.respParse.encode_out(outlist)
-                keyModTimes[listName] = time.time()
+                kematri.modKey(listName)
                 varDict[listName] = varDict[listName][1:]
                 waitstarts.remove(waitcount)
                 return(outlist, 'array')
@@ -527,19 +578,19 @@ def main():
             else:
                 if varDict.get(streamKey) == None:
                     #print('stream is new')
-                    keyModTimes[streamKey] = time.time()
+                    kematri.modKey(streamKey)
                     varDict[streamKey] = stream()
                 # else:
                     #print('stream isn\'t new')
-                keyModTimes[streamKey] = time.time()
+                kematri.modKey(streamKey)
                 varDict[streamKey].idMin = idVal
                 # todo get read of idMin, that's just the last element of ids
-                keyModTimes[streamKey] = time.time()
+                kematri.modKey(streamKey)
                 varDict[streamKey].ids.append(streamID)
-                keyModTimes[streamKey] = time.time()
+                kematri.modKey(streamKey)
                 varDict[streamKey].data[streamID] = {}
                 for i in range(3, len(inline), 2): 
-                    keyModTimes[i] = time.time()
+                    kematri.modKey(i)
                     varDict[streamKey].data[streamID][str(
                         inline[i])] = inline[i+1]
                 #print(f'stream \'{streamKey}\' ids are now {varDict[streamKey].ids}')
@@ -614,7 +665,7 @@ def main():
             isInt = True
             if varDict.get(varKey) == None:
                 #print('creating variable', varKey)
-                keyModTimes[varKey] = time.time()
+                kematri.modKey(varKey)
                 varDict[varKey] = 1
                 res = 1
                 return(res,'integer')
@@ -622,13 +673,13 @@ def main():
             else:
                 try:
                     varDict[varKey] = int(varDict[varKey])
-                    keyModTimes[varKey] = time.time()
+                    kematri.modKey(varKey)
                 except:
                     isInt = False
                     #print('Error: the key is not numeric')
                     return('ERR value is not an integer or out of range','simple_error')
                 if isInt:
-                    keyModTimes[varKey] = time.time()
+                    kematri.modKey(varKey)
                     varDict[varKey] += 1
                     res = varDict[varKey]
                     #print('res =', res)
@@ -641,17 +692,20 @@ def main():
             #outline = data
 
     def respond(conn):
+
         dataCopy = {}
         #logging the client id
-        if responds == []:
-            reNo = 1
+        print(f'responds[portNo] are {responds.get(portNo)}')
+        if responds.get(portNo) == None:
+            subNo = 1
+            responds[portNo] = [1]
         else:
-            reNo = responds[-1] + 1
-
-        
-        print('portNo is', portNo)
-
-        responds.append(reNo)
+            subNo = responds[portNo][-1] + 1
+        clID = str(portNo) + '-' + str(subNo)
+        reNo = len(clIDs)
+        clIDs.append(clID)
+        kematri.addClient()
+        print('connection is', conn, 'reNo is', reNo)
         #main loop
         while True:
             data = conn.recv(4096)
@@ -667,7 +721,7 @@ def main():
                 if dataCopy:
                     for i in dataCopy:
                         if dataCopy[i] != varDict[i]:
-                            keyModTimes[i] = time.time()
+                            kematri.modKey(i)
                 dataCopy = {}
                 outline = app.respParse.encode_out(res)
                 conn.send(outline)

@@ -692,7 +692,7 @@ def main():
             res = ''
             if arg == 'replication':
                 for i in repliDict:
-                    res += i + repliDict[i] : ':'
+                    res += i +':' + repliDict[i] 
             return(res,'bulk_string')
 
         else:
@@ -732,7 +732,7 @@ def main():
         portNo = 6379
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
-    repliDict[role] = 'master'
+    repliDict['role'] = 'master'
 
     while True:
         connection, _ = server_socket.accept()

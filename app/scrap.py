@@ -1,11 +1,15 @@
-import argparse #to connect to a different port
+a = 'asdf'
+b = a.split(' ')
+print(b)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--port", help="Connection port")
-args = parser.parse_args()
-
-
-print('it passed', args.port)
+#import argparse #to connect to a different port
+#
+#parser = argparse.ArgumentParser()
+#parser.add_argument("--port", help="Connection port")
+#args = parser.parse_args()
+#
+#
+#print('it passed', args.port)
 
 # 2026 May 16, 13:34
 # learning isnumeric

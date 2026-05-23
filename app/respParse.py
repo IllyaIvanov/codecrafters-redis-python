@@ -69,12 +69,13 @@ def encode_out(result):
             header = b'$' + str(len(toSend)).encode("utf-8") + header
         case 'array':
             body = b''
-        #print('encoding list', toSend)
             if not toSend:
                 return b'*0\r\n'
-            header = b'*' + str(len(toSend)).encode("utf-8") + header
+            liSend = toSend.split(' ')
+            header = b'*' + str(len(liSend)).encode("utf-8") + header
             tail = b''
-            for i in toSend:
+            #print(f'respParse: array {liSend} length is {len(liSend)}')
+            for i in liSend:
                 body += encode_out((i,'unknown'))
         case 'simple_string':
             header = b'+'

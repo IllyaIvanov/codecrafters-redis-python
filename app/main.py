@@ -743,32 +743,35 @@ def main():
 
 
     if args.replicaof:
-        repliDict['role'] = 'slave'
+        role = repliDict['role'] = 'slave'
+
+        repliDict['ownedby'] = args.replicaof
+        ownedby = repliDict['ownedby'].split(' ')
+
+        print(f'repliDict[\'ownedby\'] is {repliDict['ownedby']}')
+        slocket = socket.create_connection((ownedby[0], int(ownedby[1])))
     else:
-        repliDict['role'] = 'master'
+        role = repliDict['role'] = 'master'
         repliDict['master_replid'] = random_id(40)
         repliDict['master_repl_offset'] = 0
 
+    
+    if repliDict['role'] == 'slave':
+        connection = slocket
+        outline = app.respParse.encode_out(('PING', 'array'))
+        print(f'outline is {outline}')
+        slocket.send(outline)
 
-        
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
-
 
     while True:
         connection, _ = server_socket.accept()
         if not connection:
             break
-
-       ##print('its type is', type(getConn))
-       # for i in getConn:
-            #print(f'getConn has element {i}')
-
-        #print('connection\'s fd is ', socket.recv_fds(connection, 1024, 1024))
-        # clients have different 'fd'? 'connection, addr' is not preserved
         thr = threading.Thread(target=respond, args=(connection,))
-        #if thr: #print(thr)
         thr.start()
-
+    
+    
 if __name__ == "__main__":
     # todo why the underscores? what does this specific initialization do?
     main()

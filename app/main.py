@@ -25,6 +25,7 @@ import argparse #to connect to a different port
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", help="Connection port")
+parser.add_argument("--replicaof", help="Whose replica")
 args = parser.parse_args()
 
 def main():

@@ -71,11 +71,13 @@ def encode_out(result):
             body = b''
             if not toSend:
                 return b'*0\r\n'
-            liSend = toSend.split(' ')
-            header = b'*' + str(len(liSend)).encode("utf-8") + header
+            if isinstance(toSend, str):
+                toSend = toSend.split(' ')
+            print('encoding array', toSend)
+            header = b'*' + str(len(toSend)).encode("utf-8") + header
             tail = b''
-            #print(f'respParse: array {liSend} length is {len(liSend)}')
-            for i in liSend:
+            #print(f'respParse: array {toSend} length is {len(toSend)}')
+            for i in toSend:
                 body += encode_out((i,'unknown'))
         case 'simple_string':
             header = b'+'

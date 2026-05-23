@@ -742,6 +742,8 @@ def main():
         waitFor('OK', master_connection)
         sendCmd('REPLCONF capa psync2', master_connection)
         waitFor('OK', master_connection)
+        sendCmd('PSYNC ? -1', master_connection)
+
         #todo --- slaveInit, masterInit?
         #todo --- sendwait? unite both
     

@@ -19,6 +19,7 @@ Isn't it time to just... define commands as a class? with tags and such,
 import socket  # noqa: F401
 import threading
 from datetime import datetime, timedelta
+from secrets import choice #to generate random IDs for replication extension
 import time
 import app.respParse
 import argparse #to connect to a different port
@@ -27,6 +28,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--port", help="Connection port")
 parser.add_argument("--replicaof", help="Whose replica")
 args = parser.parse_args()
+#'random' ID 
+
 
 def main():
     #consts
@@ -204,17 +207,16 @@ def main():
                     res = True
             return res
 
+    def random_id(l):
+        res = ''
+        ords = list(range(48, 58)) + list(range(97, 123))
+        for i in range(l):
+            res += chr(choice(ords))
+        return res
 
 
 
-    #def keyMod(key):
-    #    if not key in keyNos:
-    #        keyNos[key] = len(keyTrack)
-    #        keyTrack.append([key] + [0] * ) #can keep the key cause client ids start with 1
-    #    else:
-    #        print(f'key {key} wasn\'t watched')
-    #    print(f'reNo {clID}: watchstates {keyWatchers[key]}, losers
-    #          {keyLosers[key]}')
+
 
     kematri = keyTrackMatrix()
 
@@ -696,7 +698,7 @@ def main():
             res = ''
             if arg == 'replication':
                 for i in repliDict:
-                    res += i +':' + repliDict[i] 
+                    res += i +':' + str(repliDict[i] )
             return(res,'bulk_string')
 
         else:
@@ -744,6 +746,10 @@ def main():
         repliDict['role'] = 'slave'
     else:
         repliDict['role'] = 'master'
+        repliDict['master_replid'] = random_id(40)
+        repliDict['master_repl_offset'] = 0
+
+
         
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 

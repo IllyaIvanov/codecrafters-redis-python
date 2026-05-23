@@ -220,6 +220,11 @@ def main():
 
     kematri = keyTrackMatrix()
 
+    def sendCmd(result, connection)
+        outline = app.respParse.encode_out((result, 'array'))
+        print(f'outline is {outline}')
+        connection.send(outline)
+
     def exCmd(inline, reNo):
         print(f'reNo {reNo}: executing {inline[0].upper()}')
         #print('exCmd thinks that reNo is', reNo)
@@ -717,6 +722,7 @@ def main():
         clIDs.append(clID)
         kematri.addClient()
         print('connection is', conn, 'reNo is', reNo)
+
         #main loop
         while True:
             data = conn.recv(4096)
@@ -749,7 +755,7 @@ def main():
         ownedby = repliDict['ownedby'].split(' ')
 
         print(f'repliDict[\'ownedby\'] is {repliDict['ownedby']}')
-        slocket = socket.create_connection((ownedby[0], int(ownedby[1])))
+        connection = socket.create_connection((ownedby[0], int(ownedby[1])))
     else:
         role = repliDict['role'] = 'master'
         repliDict['master_replid'] = random_id(40)
@@ -757,12 +763,22 @@ def main():
 
     
     if repliDict['role'] == 'slave':
-        connection = slocket
-        outline = app.respParse.encode_out(('PING', 'array'))
-        print(f'outline is {outline}')
-        slocket.send(outline)
+        sendCmd('PING', connection)
+
+        #outline = app.respParse.encode_out(('PING', 'array'))
+        #print(f'outline is {outline}')
+        #slocket.send(outline)
 
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
+
+    if role == 'slave':
+        result = 'REPLCONF listening-port' + ownedby[1]
+        sendCmd(result)
+        result = 'REPLCONF capa psync2'
+        sendCmd(result)
+
+
+
 
     while True:
         connection, _ = server_socket.accept()

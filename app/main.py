@@ -459,6 +459,9 @@ def main():
             else:
                 waitcount = 0
             waitstarts.append(waitcount)
+
+
+
             #print('waitstarts is now', waitstarts)
             a = True
             chP = time.time()
@@ -726,13 +729,23 @@ def main():
 
             # conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
+    #######################
+    #parsing arguments
+    #######################
+
     if args.port:
         portNo = int(args.port)
     else:
         portNo = 6379
+
+
+    if args.replicaof:
+        repliDict['role'] = 'slave'
+    else:
+        repliDict['role'] = 'master'
+        
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
-    repliDict['role'] = 'master'
 
     while True:
         connection, _ = server_socket.accept()

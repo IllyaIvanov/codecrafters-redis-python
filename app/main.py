@@ -237,9 +237,25 @@ def main():
         print(f'wait for {phrase} has ended')
         return
 
-    #def handshake(hpTuple)
+    def handshake(replargs):
+        o = replargs.split(' ')
+        ownedby = (o[0], int(o[1]))
+        repliDict['ownedby'] = ownedby
+        master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
+    
+        sendCmd('PING', master_connection)
+        waitFor('PONG', master_connection)
+    
+    
+        sendCmd('REPLCONF listening-port ' + str(portNo), master_connection)
+        waitFor('OK', master_connection)
+        sendCmd('REPLCONF capa psync2', master_connection)
+        waitFor('OK', master_connection)
+        sendCmd('PSYNC ? -1', master_connection)
 
-
+        #todo --- slaveInit, masterInit?
+        #todo --- sendwait? unite both
+ 
 
     def exCmd(inline, reNo):
         print(f'reNo {reNo}: executing {inline[0].upper()}')
@@ -722,31 +738,14 @@ def main():
                     res += i +':' + str(repliDict[i] )
             return(res,'bulk_string')
 
-        elif cmd == 'OK':
-            varDict['status']='OK'
+        elif cmd == 'replconf':
+            return('OK','simple_string')
+
 
         else:
             return('ERR Unknown command', 'simple_error')
             #outline = data
-    def handshake(replargs):
-        o = replargs.split(' ')
-        ownedby = (o[0], int(o[1]))
-        repliDict['ownedby'] = ownedby
-        master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
-    
-        sendCmd('PING', master_connection)
-        waitFor('PONG', master_connection)
-    
-    
-        sendCmd('REPLCONF listening-port ' + str(portNo), master_connection)
-        waitFor('OK', master_connection)
-        sendCmd('REPLCONF capa psync2', master_connection)
-        waitFor('OK', master_connection)
-        sendCmd('PSYNC ? -1', master_connection)
-
-        #todo --- slaveInit, masterInit?
-        #todo --- sendwait? unite both
-    
+   
     
     def respond(conn):
         print(f'responds[portNo] are {responds.get(portNo)}')

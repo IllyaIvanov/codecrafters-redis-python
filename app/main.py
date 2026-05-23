@@ -220,7 +220,7 @@ def main():
 
     kematri = keyTrackMatrix()
 
-    def sendCmd(result, connection)
+    def sendCmd(result, connection):
         outline = app.respParse.encode_out((result, 'array'))
         print(f'outline is {outline}')
         connection.send(outline)

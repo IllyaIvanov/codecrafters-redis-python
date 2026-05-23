@@ -772,10 +772,10 @@ def main():
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
     if role == 'slave':
-        result = 'REPLCONF listening-port' + ownedby[1]
-        sendCmd(result)
+        result = 'REPLCONF listening-port ' + ownedby[1]
+        sendCmd(result, connection)
         result = 'REPLCONF capa psync2'
-        sendCmd(result)
+        sendCmd(result, connection)
 
 
 

@@ -1,6 +1,6 @@
-a = 'asdf'
-b = a.split(' ')
-print(b)
+#a = 'asdf'
+#b = a.split(' ')
+#print(b)
 
 #import argparse #to connect to a different port
 #

@@ -225,6 +225,22 @@ def main():
         print(f'outline is {outline}')
         connection.send(outline)
 
+    def waitFor(phrase, connection):
+        data = None
+        c = 1
+        while data != phrase:
+            prevdata = data
+            data = app.respParse.decode_resp(connection.recv(4096))
+            if data != prevdata:
+                print(f'data changed to {data}')
+        data = ''
+        print(f'wait for {phrase} has ended')
+        return
+
+    #def handshake(hpTuple)
+
+
+
     def exCmd(inline, reNo):
         print(f'reNo {reNo}: executing {inline[0].upper()}')
         #print('exCmd thinks that reNo is', reNo)
@@ -706,10 +722,30 @@ def main():
                     res += i +':' + str(repliDict[i] )
             return(res,'bulk_string')
 
+        elif cmd == 'OK':
+            varDict['status']='OK'
+
         else:
             return('ERR Unknown command', 'simple_error')
             #outline = data
-
+    def handshake(replargs):
+        o = replargs.split(' ')
+        ownedby = (o[0], int(o[1]))
+        repliDict['ownedby'] = ownedby
+        master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
+    
+        sendCmd('PING', master_connection)
+        waitFor('PONG', master_connection)
+    
+    
+        sendCmd('REPLCONF listening-port ' + str(portNo), master_connection)
+        waitFor('OK', master_connection)
+        sendCmd('REPLCONF capa psync2', master_connection)
+        waitFor('OK', master_connection)
+        #todo --- slaveInit, masterInit?
+        #todo --- sendwait? unite both
+    
+    
     def respond(conn):
         print(f'responds[portNo] are {responds.get(portNo)}')
         if responds.get(portNo) == None:
@@ -734,9 +770,7 @@ def main():
                 res = exCmd(inline, reNo)
                 outline = app.respParse.encode_out(res)
                 conn.send(outline)
-               #print('sent outline is', outline)
 
-            # conn.sendall(b"+PONG\r\n") #key part --- there must be a loop in this function
 
     #######################
     #parsing arguments
@@ -748,22 +782,18 @@ def main():
         portNo = 6379
 
 
+
     if args.replicaof:
+        print('initially, the replicaof args are', args.replicaof)
         role = repliDict['role'] = 'slave'
-
-        repliDict['ownedby'] = args.replicaof
-        ownedby = repliDict['ownedby'].split(' ')
-
-        print(f'repliDict[\'ownedby\'] is {repliDict['ownedby']}')
-        connection = socket.create_connection((ownedby[0], int(ownedby[1])))
+        thr = threading.Thread(target=handshake, args=(args.replicaof,))
+        thr.start()
     else:
         role = repliDict['role'] = 'master'
         repliDict['master_replid'] = random_id(40)
         repliDict['master_repl_offset'] = 0
 
     
-    if repliDict['role'] == 'slave':
-        sendCmd('PING', connection)
 
         #outline = app.respParse.encode_out(('PING', 'array'))
         #print(f'outline is {outline}')
@@ -771,11 +801,6 @@ def main():
 
     server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
-    if role == 'slave':
-        result = 'REPLCONF listening-port ' + ownedby[1]
-        sendCmd(result, connection)
-        result = 'REPLCONF capa psync2'
-        sendCmd(result, connection)
 
 
 

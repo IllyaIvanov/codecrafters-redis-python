@@ -1,9 +1,13 @@
 
 def decode_resp(inline):
+    print(f'decoding inline {inline}')
     prefix = chr(inline[0]) #chr -- converts single byte char to actual char
     res = None
     if prefix == '+': #simple string
-        return inline.decode("utf-8")[1:-4]
+        #print('got a simple string')
+        return inline.decode("utf-8")[1:-2]
+        #return inline.decode("utf-8")[1:-4]
+        #have I even been decoding simple strings at any point?
     elif prefix =='-': #error
         return inline.decode("utf-8")[1:-4]
     elif prefix ==':': #int

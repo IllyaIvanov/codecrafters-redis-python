@@ -741,6 +741,11 @@ def main():
         elif cmd == 'replconf':
             return('OK','simple_string')
 
+        elif cmd == 'psync':
+            res = 'FULLRESYNC ' + str(repliDict['master_replid']) + ' ' + str(0)
+            return(res, 'simple_string')
+
+
 
         else:
             return('ERR Unknown command', 'simple_error')

@@ -37,7 +37,9 @@ def enErr(toSend):
     return b'-' + toSend.encode("utf-8") + b'\r\n'
 
 def encode_out(result):
-    #print(result)
+    print(result)
+    if result is None:
+        return b''
     toSend = result[0]
     outType = result[1]
 
@@ -83,6 +85,20 @@ def encode_out(result):
             #print(f'respParse: array {toSend} length is {len(toSend)}')
             for i in toSend:
                 body += encode_out((i,'unknown'))
+        case 'file':
+            toSend = str(toSend)
+            header = b'$' + str(len(toSend)).encode("utf-8") + b'\r\n'
+            body = toSend.encode("utf-8")
+            tail = b''
+        case 'rdb':
+            tail = b''
+            header = f'${len(toSend)}\r\n'.encode("utf-8")
+            body = toSend
+        case 'result_sequence': #when we need to return multiple messages
+            ans = []
+            for i in toSend:
+                ans.append(encode_out(i))
+            return ans
         case 'simple_string':
             header = b'+'
         case 'simple_error':
@@ -91,5 +107,7 @@ def encode_out(result):
             return b'*-1\r\n'
         case 'null_bulk_string':
             return b'$-1\r\n'
+
+
     #print(f'header {header}, body {body}, tail {tail}')
     return header + body + tail

@@ -23,6 +23,12 @@ from secrets import choice #to generate random IDs for replication extension
 import time
 import app.respParse
 import argparse #to connect to a different port
+from base64 import b64decode
+
+### Constants ###
+empty_rdb64 = 'UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCbQi8ZfoIdXNlZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog=='
+rdb_bin = b64decode(empty_rdb64)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", help="Connection port")
@@ -742,8 +748,17 @@ def main():
             return('OK','simple_string')
 
         elif cmd == 'psync':
-            res = 'FULLRESYNC ' + str(repliDict['master_replid']) + ' ' + str(0)
-            return(res, 'simple_string')
+            res1 = 'FULLRESYNC ' + str(repliDict['master_replid']) + ' ' + str(0)
+            print(f'psync1 result is {res1}') 
+            res2 = rdb_bin
+            print(f'psync2 result is {res2}, converted from {empty_rdb64}')
+            res = [(res1, 'simple_string'), (res2, 'rdb')]
+            return(res, 'result_sequence')
+
+
+
+
+
 
 
 
@@ -775,7 +790,11 @@ def main():
                 print('inline is', inline)
                 res = exCmd(inline, reNo)
                 outline = app.respParse.encode_out(res)
-                conn.send(outline)
+                if not isinstance(outline, list):
+                    outline = [outline]
+                for i in outline: #for the commands that send multiple messages
+                    print('sending', i)
+                    conn.send(i)
 
 
     #######################

@@ -27,8 +27,8 @@ from base64 import b64decode
 
 ### Constants ###
 empty_rdb64 = 'UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCbQi8ZfoIdXNlZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog=='
-rdb_bin = b64decode(empty_rdb64)
-
+rdb_bin = b64decode(empty_rdb64) 
+writeCommands = ['set', 'del']
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", help="Connection port")
@@ -228,7 +228,7 @@ def main():
 
     def sendCmd(result, connection):
         outline = app.respParse.encode_out((result, 'array'))
-        print(f'outline is {outline}')
+        #print(f'outline is {outline}')
         connection.send(outline)
 
     def waitFor(phrase, connection):
@@ -237,16 +237,37 @@ def main():
         while data != phrase:
             prevdata = data
             data = app.respParse.decode_resp(connection.recv(4096))
-            if data != prevdata:
-                print(f'data changed to {data}')
+            #if data != prevdata:
+                #print(f'data changed to {data}')
         data = ''
-        print(f'wait for {phrase} has ended')
+        #print(f'wait for {phrase} has ended')
         return
 
     def handshake(replargs):
+        #todo wow hacky make a function and call both when handshaking and respondsing
+    
+        if responds.get(portNo) == None:
+            subNo = 1
+            responds[portNo] = [1]
+        else:
+            subNo = responds[portNo][-1] + 1
+    
+        clID = str(portNo) + '-' + str(subNo)
+        reNo = len(clIDs)
+        clIDs.append(clID)
+    
+        print(f'responds is {responds}') 
+        print(f'clIDs is {clIDs}')
+    
+        repliDict[reNo] = repliInfo
+
+
         o = replargs.split(' ')
+        print(f'replargs is {o}')
         ownedby = (o[0], int(o[1]))
-        repliDict['ownedby'] = ownedby
+        print(f'ownedby is {ownedby}')
+        repliDict[reNo]['ownedby'] = ownedby
+        print(f'from replica: repliDict is {repliDict}')
         master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
     
         sendCmd('PING', master_connection)
@@ -258,19 +279,20 @@ def main():
         sendCmd('REPLCONF capa psync2', master_connection)
         waitFor('OK', master_connection)
         sendCmd('PSYNC ? -1', master_connection)
+        #print(f'repliDict[reNo] is {repliDict[reNo]}')
 
         #todo --- slaveInit, masterInit?
         #todo --- sendwait? unite both
  
 
-    def exCmd(inline, reNo):
+    def exCmd(inline, reNo, sender = None):
         print(f'reNo {reNo}: executing {inline[0].upper()}')
         #print('exCmd thinks that reNo is', reNo)
         if qDicts.get(reNo) == None:
             qDicts[reNo] = {}
             defaultize(qDicts[reNo])
 
-        print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
+        #print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
         #exCmd sees it, until I refer to it from respond. hm.
         if type(inline) == list:
             cmd = inline[0].lower()
@@ -282,7 +304,7 @@ def main():
             for i in qDicts[reNo]:
                 qDict[i] = qDicts[reNo][i]
             defaultize(qDicts[reNo])
-            print(f'qDict is', qDict)
+            #print(f'qDict is', qDict)
             if kematri.watchFailed(reNo):
                     return ('', 'null_array')
             #print('reNo', reNo, ':', 'Casting:') #print('reNo', reNo, ': qDict is', qDicts.get(reNo))
@@ -320,9 +342,9 @@ def main():
                 return ('ERR WATCH inside MULTI is not allowed', 'simple_error')
             else:
                 toWatch = list(inline[1:])
-                print('reNo is', reNo)
+                #print('reNo is', reNo)
                 for i in toWatch:
-                    print(f'reNo {reNo}+1: watching key {i}')
+                    #print(f'reNo {reNo}+1: watching key {i}')
                     kematri.setWatch(reNo, i)
             return('OK','simple_string')
 
@@ -740,60 +762,81 @@ def main():
             arg = inline[1]
             res = ''
             if arg == 'replication':
-                for i in repliDict:
-                    res += i +':' + str(repliDict[i] )
+                print(f'repliDict[reNo] is {repliDict[reNo]}')
+                for i in repliDict[reNo]:
+                    res += i +':' + str(repliDict[reNo][i]) + '\n' 
+                print(f'res is {res}')
             return(res,'bulk_string')
 
         elif cmd == 'replconf':
+            #master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
             return('OK','simple_string')
 
         elif cmd == 'psync':
-            res1 = 'FULLRESYNC ' + str(repliDict['master_replid']) + ' ' + str(0)
-            print(f'psync1 result is {res1}') 
+            res1 = 'FULLRESYNC ' + str(repliDict[reNo]['master_replid']) + ' ' + str(0)
+            #print(f'psync1 result is {res1}') 
             res2 = rdb_bin
-            print(f'psync2 result is {res2}, converted from {empty_rdb64}')
+            #print(f'psync2 result is {res2}, converted from {empty_rdb64}')
             res = [(res1, 'simple_string'), (res2, 'rdb')]
+            if repliDict[reNo].get('replicae') == None:
+                repliDict[reNo]['replicae'] = [sender]
+            elif not sender in repliDict[reNo]['replicae']:
+                repliDict[reNo]['replicae'].append(sender)
             return(res, 'result_sequence')
-
-
-
-
-
-
-
 
         else:
             return('ERR Unknown command', 'simple_error')
             #outline = data
    
     
-    def respond(conn):
-        print(f'responds[portNo] are {responds.get(portNo)}')
+    def respond(conn, role):
+    
         if responds.get(portNo) == None:
             subNo = 1
             responds[portNo] = [1]
         else:
             subNo = responds[portNo][-1] + 1
+    
         clID = str(portNo) + '-' + str(subNo)
         reNo = len(clIDs)
         clIDs.append(clID)
+    
+        print(f'responds is {responds}') 
+        print(f'clIDs is {clIDs}')
+    
+        repliDict[reNo] = repliInfo
+
+
+
+        #print(f'responds[portNo] are {responds.get(portNo)}')
         kematri.addClient()
-        print('connection is', conn, 'reNo is', reNo)
+        #print('connection is', conn, 'reNo is', reNo)
 
         #main loop
         while True:
             data = conn.recv(4096)
             if data:
                 #timeIn = datetime.now()
-                connFD = connection.fileno()
                 inline = app.respParse.decode_resp(data)
-                print('inline is', inline)
-                res = exCmd(inline, reNo)
+                print(f'reNo {reNo}: inline is', inline)
+                res = exCmd(inline, reNo, conn)
+                reps = repliDict[reNo].get('replicae') 
+                if type(inline) == list: #todo this should only be done once
+                    cmd = inline[0].lower()
+                else:
+                    cmd = inline
+                if reps != None and cmd != 'psync': #todo wow hacky, need list of propagatables
+                    #actually, need a command class, and propagatable attribute
+                    for i in reps:
+                        propagated_command = ' '.join(inline)
+                        sendCmd(propagated_command, i)
+                # if master -- need to keep track of the replica connections
+                # after exCmd --- need to propagate
                 outline = app.respParse.encode_out(res)
                 if not isinstance(outline, list):
                     outline = [outline]
                 for i in outline: #for the commands that send multiple messages
-                    print('sending', i)
+                    #print('sending', i)
                     conn.send(i)
 
 
@@ -806,17 +849,18 @@ def main():
     else:
         portNo = 6379
 
-
+    repliInfo = {}
 
     if args.replicaof:
         print('initially, the replicaof args are', args.replicaof)
-        role = repliDict['role'] = 'slave'
+        role = repliInfo['role'] = 'slave'
         thr = threading.Thread(target=handshake, args=(args.replicaof,))
         thr.start()
     else:
-        role = repliDict['role'] = 'master'
-        repliDict['master_replid'] = random_id(40)
-        repliDict['master_repl_offset'] = 0
+        role = repliInfo['role'] = 'master'
+        repliInfo['master_replid'] = random_id(40)
+        repliInfo['master_repl_offset'] = 0
+        repliInfo['replicas'] = []
 
     
 
@@ -834,10 +878,34 @@ def main():
         connection, _ = server_socket.accept()
         if not connection:
             break
-        thr = threading.Thread(target=respond, args=(connection,))
+        thr = threading.Thread(target=respond, args=(connection,role,))
         thr.start()
     
     
 if __name__ == "__main__":
     # todo why the underscores? what does this specific initialization do?
     main()
+
+#exec
+#multi
+#discard
+#watch
+#unwatch
+#echo
+#ping
+#set
+#get
+#rpush
+#lpush
+#lrange
+#llen
+#lpop
+#blpop
+#type
+#xadd
+#xrange
+#xread
+#incr
+#info
+#replconf
+#psync

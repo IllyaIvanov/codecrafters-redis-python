@@ -1,6 +1,6 @@
 
 def decode_resp(inline):
-    print(f'decoding inline {inline}')
+    #print(f'decoding inline {inline}')
     prefix = chr(inline[0]) #chr -- converts single byte char to actual char
     res = None
     if prefix == '+': #simple string
@@ -37,7 +37,7 @@ def enErr(toSend):
     return b'-' + toSend.encode("utf-8") + b'\r\n'
 
 def encode_out(result):
-    print(result)
+    #print(result)
     if result is None:
         return b''
     toSend = result[0]
@@ -79,7 +79,7 @@ def encode_out(result):
                 return b'*0\r\n'
             if isinstance(toSend, str):
                 toSend = toSend.split(' ')
-            print('encoding array', toSend)
+            #print('encoding array', toSend)
             header = b'*' + str(len(toSend)).encode("utf-8") + header
             tail = b''
             #print(f'respParse: array {toSend} length is {len(toSend)}')

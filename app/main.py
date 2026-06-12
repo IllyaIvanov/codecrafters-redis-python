@@ -269,6 +269,7 @@ def main():
         repliDict[reNo]['ownedby'] = ownedby
         print(f'from replica: repliDict is {repliDict}')
         master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
+        print(f'master_connection is {master_connection}')
     
         sendCmd('PING', master_connection)
         waitFor('PONG', master_connection)
@@ -790,12 +791,15 @@ def main():
    
     
     def respond(conn, role):
-    
+        print(f'connection is {conn}')
+
+        print(f'responds is {responds}')
         if responds.get(portNo) == None:
             subNo = 1
             responds[portNo] = [1]
         else:
             subNo = responds[portNo][-1] + 1
+            responds[portNo].append(subNo)
     
         clID = str(portNo) + '-' + str(subNo)
         reNo = len(clIDs)
@@ -825,10 +829,11 @@ def main():
                     cmd = inline[0].lower()
                 else:
                     cmd = inline
-                if reps != None and cmd != 'psync': #todo wow hacky, need list of propagatables
+                if reps != None and cmd in writeCommands: #todo wow hacky, need list of propagatables
                     #actually, need a command class, and propagatable attribute
                     for i in reps:
                         propagated_command = ' '.join(inline)
+                        print('sending', propagated_command, 'to', i)
                         sendCmd(propagated_command, i)
                 # if master -- need to keep track of the replica connections
                 # after exCmd --- need to propagate

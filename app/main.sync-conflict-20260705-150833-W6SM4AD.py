@@ -1,7 +1,3 @@
-#todo syntax highlight ' single '=' in a line that starts with 'if'
-#all variable assignments
-# ^\s*\zs[^= #]*\ze\s*=
-
 # is there ever need to access qDict of one client from another? I don't think
 # so
 
@@ -28,86 +24,37 @@ import time
 import app.respParse
 import argparse #to connect to a different port
 from base64 import b64decode
-
+import re #regular expressions
 ### Constants ###
 empty_rdb64 = 'UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCbQi8ZfoIdXNlZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog=='
 rdb_bin = b64decode(empty_rdb64) 
+writeCommands = ['set', 'del']
 
-writeCommands = ['set', 'del'] 
-command_list =['UNWATCH','BLPOP', 'RPUSH', 'PING', 'GET', 'SET', 'LRANGE', 'ECHO', 'LPUSH', 'LPOP', 'LLEN', 'TYPE', 'XADD', 'XRANGE', 'XREAD', 'MULTI', 'EXEC', 'INCR', 'DISCARD', 'WATCH', 'REPLCONF', 'INFO', 'PSYNC', 'FULLRESYNC']
-
-#logname = './redislog_' + time.strftime("%Y-%m-%d_%H:%M") + '.txt'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", help="Connection port")
 parser.add_argument("--replicaof", help="Whose replica")
-argums = parser.parse_args()
-#print(f'argums is {argums}')
+args = parser.parse_args()
 #'random' ID 
 
 
-### why am I defining all the auxiliary stuff inside main??? I don't think there's an actual reason
-#def log_the_line(fname, logline):
-
-### checking if the input is a list whose first element is a command
-def send_result(res, conn, reNo): 
-    outline = app.respParse.encode_out(res)
-    if not isinstance(outline, list):
-        outline = [outline]
-    for i in outline: #for the commands that send multiple messages
-        print(f'reNo {reNo}, sending {i}')
-        conn.send(i)
-        #print(f'repliDict is {repliDict}')
-
-def is_command(someinput):
-    if isinstance(someinput, list) and someinput[0] in command_list:
-        print(someinput,' is a command')
-        return True
-    else:
-        print(someinput, 'is not a command')
-        return False
-
-### execute commands from the list one by one
-
-def log_the_line(*arg):
-    logline = time.strftime("%Y-%m-%d %H:%M") + "::"
-
-    for i in arg[1:]:
-        logline += str(i)
-    with open(logname, "a") as f:
-        f.write(logline)
-
 def main():
-    #print(f'logname is {logname}')
-
     #consts
     dMod = ('incr', 'xadd', 'blpop', 'lpop', 'lpush', 'rpush', 'exec')
-
 
     clIDs = []
     exps = {}
     waitstarts = []
-    client_IDs={} #client ids essentially
+    responds={} #client ids essentially
     varDict = {}
     repliDict = {}
     qDicts = {} #{'charging' : False, 'cmdQ' : []}
     
 
-    '''
-    all of this kinda sucks
-    how about mxn table? keys, clids
-    -1 bad, 1 watched, 0 nothing
-    okay, you give a try to what you have now, and if not --- do the keyTrack
-    matrix
-    ...
-    yeah, making sure everyone is everywhere only once is garbage
-    '''
-
     def defaultize(qdict):
         qdict['charging'] = False
         qdict['cmdQ'] = []
         qdict['keyQ'] = {}
-
 
 
     class stream:
@@ -117,6 +64,7 @@ def main():
             self.idMin = [0, 0]
 
     def idComp(id1, id2):  # comparing two stream id's
+        #print(f'comparing ids {id1} and {id2}')
         v1 = [int(x) for x in id1.split('-')]
         v2 = [int(x) for x in id2.split('-')]
         c = 10*(v1[0] > v2[0]) - 10*(v1[0] < v2[0]) + \
@@ -128,13 +76,13 @@ def main():
             ans = '='
         else:
             ans = '<'
-        #print(id1,  ans,  id2)
+        #print(id1, ans, id2)
         return ans
 
     def strmOut(streamKey, idlist):
         if not isinstance(idlist, list):
             idlist = [idlist]
-        #print('idlist is',  idlist)
+        #print('idlist is', idlist)
         ans = []
         strm = varDict[streamKey]
         for i in idlist:
@@ -142,12 +90,12 @@ def main():
             # ans --- the total stream output
             # ans[i] ---id and then data under the this id
             ans[-1] = [i, []]
-            #print('filling',  ans[-1])
+            #print('filling', ans[-1])
             # j is a key for this id's data
             for j in strm.data[i]:
-                #print('strmOut is appending',  j)
+                #print('strmOut is appending', j)
                 ans[-1][1].append(j)
-                #print('strmOut is appending',  strm.data[i][j])
+                #print('strmOut is appending', strm.data[i][j])
                 ans[-1][1].append(strm.data[i][j])
                 # ans[i][1].append(varDict[streamKey].data[j])
         return ans
@@ -161,24 +109,24 @@ def main():
             #print('stream not found somehow?')
             outline = app.respParse.enErr('Error: no such stream')
         else:
-            #print('timeExp is',  timeExp)
+            #print('timeExp is', timeExp)
             i = inB = 0
             strB = ['>']
             if excl:
                 strB.append('=')
             if timeExp != False:
-                #print('there\'s timeExp',  timeExp)
+                #print('there\'s timeExp', timeExp)
                 chP = time.time()
-                #print('first chP is',  chP)
+                #print('first chP is', chP)
                 intr = 0
                 while (not strm.ids or idComp(idB, strm.ids[-1]) in strB) and (not isinstance(timeExp, float) or time.time() < timeExp):
                     #if intr == 0:
-                        #print('we start whiling with ids',  strm.ids)
-                        #print('timeExp is ',  timeExp)
-                        #print('we need to surpass',  idB)
+                        #print('we start whiling with ids', strm.ids)
+                        #print('timeExp is ', timeExp)
+                        #print('we need to surpass', idB)
                     if intr >= 1000000:
                         intr = 1
-                        #print(f'strm.ids are {strm.ids},  ')
+                        #print(f'strm.ids are {strm.ids}, ')
                     intr += 1
                 #print('loop exited')
                 if isinstance(timeExp, float) and time.time() > timeExp and idComp(idB, strm.ids[-1]) in strB:
@@ -195,9 +143,9 @@ def main():
                 inE = i
             # if i == len(strm.ids) - 1:
             #    idE = -1
-            #print(f'idB and idE are {idB, idE}')
-            #print(f'respective ids are{strm.ids[idB],  strm.ids[idE]}')
-            #print(f'so idlist is {strm.ids[idB:id,1]}')
+            #print(f'idB and idE are {idB,idE}')
+            #print(f'respective ids are{strm.ids[idB], strm.ids[idE]}')
+            #print(f'so idlist is {strm.ids[idB:idE+1]}')
             res = strmOut(streamKey, strm.ids[inB:inE+1])
             return res
 
@@ -230,11 +178,7 @@ def main():
                 self.table[i].append(0)
         def setWatch(self, client_ind, key):
             self.addKey(key)
-#           #print(
-#                    f'key is {key}, keyndex is {self.keyndex},'
-#                    f'and client index is {client_ind},'
-#                    f'the table is {self.table}'
-#                 )
+            #print( f'key is {key}, keyndex is {self.keyndex},' f'and client index is {client_ind},' f'the table is {self.table}')
             self.table[self.keyndex[key]][client_ind] = 1
         def modKey(self,key):
             if self.keyndex.get(key) != None:
@@ -245,16 +189,15 @@ def main():
             for i in range(self.keyNo):
                 self.table[i][client_ind] = 0
         def watchFailed(self,client_ind):
-           #print('table is', self.table)
-           #print(f'keyndex is {self.keyndex}')
+            #print('table is', self.table)
+            #print(f'keyndex is {self.keyndex}')
             res = False
             for i in self.keyndex:
                 if self.table[self.keyndex[i]][client_ind] == -1:
-                   #print(f'key {i} was changed under reNo {client_ind}\'s watch')
+                    #print(f'key {i} was changed under reNo {client_ind}\'s watch')
                     self.clearClient(client_ind)
                     res = True
             return res
-
     def random_id(l):
         res = ''
         ords = list(range(48, 58)) + list(range(97, 123))
@@ -270,88 +213,89 @@ def main():
 
     def sendCmd(result, connection):
         outline = app.respParse.encode_out((result, 'array'))
-        print('sending the outline', outline, 'to the connection', connection)
         #print(f'outline is {outline}')
         connection.send(outline)
 
     def waitFor(phrase, connection):
         data = None
-        if not phrase:
-            print('waiting for anything')
-            while not data:
-                #print('nothing appeared')
-                pass
-            exCmd('allgood')
-            #print('something appeared')
-            return
-        else:
-            print('waiting for the command', phrase)
-            phrase = [phrase]
-            while data != phrase:
-                prevdata = data
-                data = connection.recv(1024)
-                if data:
-                    print(f'data is {data}')
-                    data = app.respParse.decode_resp(data)
-                    print(f'decoded data is {data}')
-                #if data != prevdata:
-                    #print(f'data changed to {data}')
-            data = ''
-            #print(f'wait for {phrase} has ended')
-            return
-    
-    # Wait, WHEN should I even start the handshake? 
-    # AS SOON AS A REPLICA IS CREATED?? EVEN BEFORE THE RESSPOND???? only when a replica connects to its MASTER
+        c = 1
+        while data != phrase:
+            prevdata = data
+            data = app.respParse.decode_resp(connection.recv(4096))
+            print(f'waitFor: decoded {data}')
+            #if data != prevdata:
+                #print(f'data changed to {data}')
+        data = ''
+        #print(f'wait for {phrase} has ended')
+        return
 
-        #initiated by a replica
-    def handshake(replargs):
-        print('beginning handshake')
-        print(f'master_connection is {master_connection}')
-        print('pinging master connection', master_connection)
-        print(f'pinging') 
+    def replica_handshake(replargs):
+
+        #print(f'handshaking: ')
+        #todo wow hacky make a function and call both when handshaking and respondsing
+    
+        if responds.get(portNo) == None:
+            subNo = 1
+            responds[portNo] = [1]
+        else:
+            subNo = responds[portNo][-1] + 1
+    
+        clID = str(portNo) + '-' + str(subNo)
+        reNo = len(clIDs)
+        clIDs.append(clID)
+    
+        #print(f'responds is {responds}') 
+        #print(f'clIDs is {clIDs}')
+    
+        repliDict[reNo] = repliInfo
+        o = replargs.split(' ')
+        #print(f'replargs is {o}')
+        ownedby = (o[0], int(o[1]))
+        #print(f'ownedby is {ownedby}')
+        repliDict[reNo]['ownedby'] = ownedby
+        #print(f'from replica: repliDict is {repliDict}')
+        master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
+        repliDict[reNo]['master_connection'] = master_connection
+        #print(f'master_connection is {master_connection}')
+    
         sendCmd('PING', master_connection)
+        print(f'reNo {reNo}: replica handshake, ping sent')
         waitFor('PONG', master_connection)
-        print(f'replconfing') 
         sendCmd('REPLCONF listening-port ' + str(portNo), master_connection)
         waitFor('OK', master_connection)
-        print(f'replconfing again') 
         sendCmd('REPLCONF capa psync2', master_connection)
         waitFor('OK', master_connection)
-        print(f'psyncing') 
         sendCmd('PSYNC ? -1', master_connection)
-        #respond(master_connection)
-        #sendCmd('ALLGOOD', master_connection)
+        respond(master_connection, 'slave')
+        #print(f'repliDict[reNo] is {repliDict[reNo]}')
 
         #todo --- slaveInit, masterInit?
         #todo --- sendwait? unite both
  
 
-    def exCmd(inline, reNo = None, sender = None): 
-        print(f'reNo {reNo}: executing {inline}')
-        #print('exCmd thinks that reNo is',  reNo)
+    def exCmd(inline, reNo, sender = None):
+        #print(f'reNo {reNo}: executing {inline[0].upper()}')
+        #print('exCmd thinks that reNo is', reNo)
         if qDicts.get(reNo) == None:
             qDicts[reNo] = {}
             defaultize(qDicts[reNo])
 
-        #print('reNo', reNo, ':',  'qDict is',  qDicts[reNo])
+        #print('reNo', reNo, ':', 'qDict is', qDicts[reNo])
         #exCmd sees it, until I refer to it from respond. hm.
         if type(inline) == list:
             cmd = inline[0].lower()
         else:
             cmd = inline
 
-        if cmd == 'allgood':
-            return('All good!', 'simple_string')
-
         if cmd == 'exec':
             qDict = {}
             for i in qDicts[reNo]:
                 qDict[i] = qDicts[reNo][i]
             defaultize(qDicts[reNo])
-            #print(f'qDict is',  qDict)
+            #print(f'qDict is', qDict)
             if kematri.watchFailed(reNo):
                     return ('', 'null_array')
-            #print('reNo', reNo, ':', 'Casting:') #print('reNo', reNo,  ': qDict is',  qDicts.get(reNo))
+            #print('reNo', reNo, ':', 'Casting:') #print('reNo', reNo, ': qDict is', qDicts.get(reNo))
             if not qDict['charging']:
                 return('ERR EXEC without MULTI', 'simple_error')
                 #outline = app.respParse.enErr('ERR EXEC without MULTI')
@@ -362,15 +306,15 @@ def main():
             else:
                 res = []
                 while qDict['cmdQ']:
-                   #print('reNo', reNo, ':',  'Casting',  qDict['cmdQ'][0])
+                   #print('reNo', reNo, ':', 'Casting', qDict['cmdQ'][0])
                     res.append(exCmd(qDict['cmdQ'][0], reNo))
                     qDict['cmdQ'] = qDict['cmdQ'][1:]
-                   #print('reNo', reNo, ':',  'Commands left:',  qGet(reNo))
+                   #print('reNo', reNo, ':', 'Commands left:', qGet(reNo))
                 return (res, 'result_list')
 
         elif cmd == 'multi':
             qDicts[reNo]['charging'] = True
-           #print('reNo', reNo,  ':',  'Charging:')
+           #print('reNo', reNo, ':', 'Charging:')
             return('OK', 'simple_string')
 
         elif cmd == 'discard':
@@ -386,9 +330,9 @@ def main():
                 return ('ERR WATCH inside MULTI is not allowed', 'simple_error')
             else:
                 toWatch = list(inline[1:])
-                #print('reNo is',  reNo)
+                #print('reNo is', reNo)
                 for i in toWatch:
-                    #print(f'reNo {reNo,1: watching key {i}')
+                    #print(f'reNo {reNo}+1: watching key {i}')
                     kematri.setWatch(reNo, i)
             return('OK','simple_string')
 
@@ -397,8 +341,8 @@ def main():
             return('OK','simple_string')
 
         elif qDicts[reNo]['charging']:
-            #print('reNo', reNo, ':', 'Still charging: adding', cmd,  'to',  qGet(reNo))
-           #print('reNo', reNo, ':', 'Still charging: adding', cmd,  'to',  qDicts[reNo]['cmdQ'])
+            #print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qGet(reNo))
+           #print('reNo', reNo, ':', 'Still charging: adding', cmd, 'to', qDicts[reNo]['cmdQ'])
             qDicts[reNo]['cmdQ'].append(inline)
             #for i in qDicts: #print(f'qDict {i} is {qDicts[i]}')
             return('QUEUED', 'simple_string')
@@ -408,20 +352,19 @@ def main():
             #outline = b'$'
             res = str(inline[1])
             return(res, 'bulk_string')
-            #print('i is',  i)
+            #print('i is', i)
             curStr = str(i).encode("utf-8")
             outline += str(i).encode("utf-8")
             outline += b'\r\n'
 
         elif cmd == 'ping':
-            #print('eyy I\'m pinging')
             return('PONG', 'simple_string')
             #outline = b'+PONG\r\n'
 
         #modifying varDict
+
         elif cmd == 'set':
-           #print(f'starting the \'SET\' command') 
-            #print('varDict is',  varDict)
+            #print('varDict is', varDict)
             #outline = b'+OK\r\n'
             vName = inline[1]
             vVal = inline[2]
@@ -430,31 +373,29 @@ def main():
                     # optional expiry parameters
                     oName = inline[3].lower()
                     oVal = int(inline[4])
-                    #print('oName, oVal',  oName,  oVal)
+                    #print('oName, oVal', oName, oVal)
                     if oName == 'px':
                         exps[vName] = datetime.now() + \
                             timedelta(microseconds=(oVal * 1000))
-                        #print('will expire at',  exps[vName])
-                        #print('exps are',  exps)
+                        #print('will expire at', exps[vName])
+                        #print('exps are', exps)
                     elif oName == 'ex':
                         exps[vName] = datetime.now() + \
                             timedelta(seconds=oVal)
             kematri.modKey(vName)
             varDict[vName] = vVal
+            #print(f'reNo {reNo}: {vName} set to {vVal}')
             return ('OK', 'simple_string')
 
         elif cmd == 'get':
-            #print(f'{repliInfo['line']} getting') 
             vName = inline[1]
-            #print(vName)
             vVal = varDict.get(vName)
-            #print('from', varDict)
             if vVal != None:
                 if exps.get(vName) and exps.get(vName) < datetime.now():
                     #print(f'key {vName} expired')
                     return([], 'null_bulk_string')
                     #outline = b'$-1\r\n'
-                    #print('exps are',  exps)
+                    #print('exps are', exps)
                 else:
                     vOut = str(vVal)
                     return(vOut, 'bulk_string')
@@ -467,7 +408,7 @@ def main():
 
         #modifying varDict
         elif cmd == 'rpush':
-            #print('before rpush,  varDict is',  varDict)
+            #print('before rpush, varDict is', varDict)
             listName = inline[1]  # making the list we add
             if varDict.get(listName) == None:
                 kematri.modKey(listName)
@@ -478,7 +419,7 @@ def main():
                 listExtra = inline[2:]
                 # adding the new part to the existing list
             l = len(varDict[listName]) + len(listExtra)
-            #print(f'adding {listExtra} to {listName},  total length is {l}')
+            #print(f'adding {listExtra} to {listName}, total length is {l}')
             kematri.modKey(listName)
             varDict[listName] += listExtra
             return(l, 'integer')
@@ -509,16 +450,16 @@ def main():
                 #outline = b'*0\r\n'
             else:
                 tList = varDict.get(listName)
-                #print('called list is',  tList)
+                #print('called list is', tList)
                 n = len(tList)
-                #print('its length is',  n)
+                #print('its length is', n)
                 inds = [int(j) for j in inline[2:4]]
                 for i in range(2):
                     if inds[i] + n < 0:
                         inds[i] = 0
                     elif inds[i] < 0:
                         inds[i] = n + inds[i]
-                #print('inds are',  inds)
+                #print('inds are', inds)
                 tList = tList[inds[0]:inds[1]+1]
                 return(tList, 'array')
                 #outline = app.respParse.encode_out(tList)
@@ -568,7 +509,7 @@ def main():
             # todo just compile it together? if received a list, then listName is ...
             listName = inline[1]
             timeOut = float(inline[2])
-            #print('timeout is',  timeOut)
+            #print('timeout is', timeOut)
             # calculate when will the timeout expire, also getting a number
             tExp = time.time() + timeOut
             if waitstarts != []:
@@ -579,7 +520,7 @@ def main():
 
 
 
-            #print('waitstarts is now',  waitstarts)
+            #print('waitstarts is now', waitstarts)
             a = True
             chP = time.time()
             #print(f'waitcount: {waitcount}: first checkpoint is {chP}')
@@ -593,7 +534,7 @@ def main():
                     not varDict.get(listName))
                 if time.time() - chP > 0.4:
                     c = 0
-                    #print(f'waitcount {waitcount}: prev chP {chP},  next checkpoint {time.time()} ')
+                    #print(f'waitcount {waitcount}: prev chP {chP}, next checkpoint {time.time()} ')
                     chP = time.time()
                     # if not varDict.get(listName):
                     #print(f'waitcount {waitcount}: list {listName} still empty')
@@ -623,9 +564,9 @@ def main():
                 #outline = app.respParse.enSimple('none')
             else:
                 res = str(type(val))
-                #print('value type is',  res)
+                #print('value type is', res)
                 res = res[8:-2]
-                #print('res is',  res)
+                #print('res is', res)
                 match res:
                     case 'str':
                         tip = 'string'
@@ -653,7 +594,7 @@ def main():
                         #            comp += res[i]
                         #        else:
                         #            comp += f'({res[i],nes[i]})'
-                        #print('comp is',  comp)
+                        #print('comp is', comp)
                         tip = 'unknown'
                 return(tip,'simple_string')
                 #outline = app.respParse.enSimple(tip)
@@ -672,7 +613,7 @@ def main():
             if idVal == ['*']:
                 #print('generating [0]')
                 idVal[0] = int(1000 * time.time())
-                #print('idVal[0] is',  idVal[0])
+                #print('idVal[0] is', idVal[0])
                 idVal.append('*')
             else:
                 idVal[0] = int(idVal[0])
@@ -682,10 +623,10 @@ def main():
                     idVal[1] = idMin[1] + 1
                 else:
                     idVal[1] = 0
-                #print('idVal[1] is',  idVal[1])
+                #print('idVal[1] is', idVal[1])
             else:
                 idVal[1] = int(idVal[1])
-            #print('idVal is',  idVal)
+            #print('idVal is', idVal)
             streamID = '-'.join([str(x) for x in idVal])
             # now, let's validate:
             if max(idVal) <= 0:
@@ -737,18 +678,18 @@ def main():
                 else:
                     timeExp = time.time() + timeOut/1000
                 i = 4
-                #print('timeOut is', timeOut,  'timeExp is',  timeExp)
+                #print('timeOut is', timeOut, 'timeExp is', timeExp)
             else:
                 timeExp = False
                 i = 2
             keys = []
             #print(f'i is {i}')
             while inline[i] in varDict:
-                #print('getting key',  inline[i])
+                #print('getting key', inline[i])
                 keys.append(inline[i])
                 i += 1
             ids = inline[i:]
-            #print(f'keys are {keys},  ids are {ids}')
+            #print(f'keys are {keys}, ids are {ids}')
             for j in range(len(ids)):
                 if ids[j] == '$':
                     ids[j] = varDict[keys[j]].ids[-1]
@@ -767,8 +708,8 @@ def main():
                     break
                 else:
                     res.append([keys[i], chunk])
-                    #print('the chunk is',  chunk)
-            #print('res is',  res)
+                    #print('the chunk is', chunk)
+            #print('res is', res)
             if res != []:
                 return(res,'array')
                 #outline = app.respParse.encode_out(res)
@@ -781,11 +722,11 @@ def main():
         #modifying varDict
         elif cmd == 'incr':
             varKey = inline[1]
-            #print('varKey is',  varKey)
-            #print('variable is',  varDict.get(varKey))
+            #print('varKey is', varKey)
+            #print('variable is', varDict.get(varKey))
             isInt = True
             if varDict.get(varKey) == None:
-                #print('creating variable',  varKey)
+                #print('creating variable', varKey)
                 kematri.modKey(varKey)
                 varDict[varKey] = 1
                 res = 1
@@ -803,19 +744,19 @@ def main():
                     kematri.modKey(varKey)
                     varDict[varKey] += 1
                     res = varDict[varKey]
-                    #print('res =',  res)
+                    #print('res =', res)
                     return(res,'integer')
                     #outline = app.respParse.encode_out(res)
 
         elif cmd == 'info':
-            #print(f'beginning info command') 
             arg = inline[1]
             res = ''
             if arg == 'replication':
-               #print(f'repliDict[reNo] is {repliDict[reNo]}')
+                pass
+                #print(f'repliDict[{reNo}] is {repliDict[reNo]}')
                 for i in repliDict[reNo]:
-                    res += i +':' + str(repliDict[reNo][i]) + '\n' 
-               #print(f'res is {res}')
+                    res += i +':' + str(repliDict[reNo][i]) + ', ' 
+                #print(f'res is {res}')
             return(res,'bulk_string')
 
         elif cmd == 'replconf':
@@ -826,158 +767,118 @@ def main():
             res1 = 'FULLRESYNC ' + str(repliDict[reNo]['master_replid']) + ' ' + str(0)
             #print(f'psync1 result is {res1}') 
             res2 = rdb_bin
-            #print(f'psync2 result is {res2},  converted from {empty_rdb64}')
+            #print(f'psync2 result is {res2}, converted from {empty_rdb64}')
             res = [(res1, 'simple_string'), (res2, 'rdb')]
-            #print('sender is', sender)
-            if repliDict[reNo].get('replicas') == None:
-                repliDict[reNo]['replicas'] = [sender]
-            elif not sender in repliDict[reNo]['replicas']:
-                repliDict[reNo]['replicas'].append(sender)
-            repliInfo['line'] += f', {sender.getpeername()}'
-            #print(f'conn.getpeername() is {conn.getpeername()}')
+            if repliDict[reNo].get('replicae') == None:
+                repliDict[reNo]['replicae'] = [sender]
+            elif not sender in repliDict[reNo]['replicae']:
+                repliDict[reNo]['replicae'].append(sender)
             return(res, 'result_sequence')
 
         else:
             return('ERR Unknown command', 'simple_error')
             #outline = data
+   
+    def respond(conn, role):
+        #print(f'connection is {conn}')
 
-
-    def respond(conn):
-        #assigning client ID
-        #todo: there's a better way of tracking the client ids, no need for a dictionary AND a list
-        if client_IDs.get(portNo) == None:
+        #print(f'responds is {responds}')
+        if responds.get(portNo) == None:
             subNo = 1
-            client_IDs[portNo] = [1]
+            responds[portNo] = [1]
         else:
-            subNo = client_IDs[portNo][-1] + 1
-            client_IDs[portNo].append(subNo)
+            subNo = responds[portNo][-1] + 1
+            responds[portNo].append(subNo)
+    
         clID = str(portNo) + '-' + str(subNo)
         reNo = len(clIDs)
         clIDs.append(clID)
+    
+        #print(f'responds is {responds}') 
+        #print(f'clIDs is {clIDs}')
+    
         repliDict[reNo] = repliInfo
-        repliInfo['line'] = 'reNo ' + str(reNo) + ' is '+ repliInfo['line']
-        repliLine = repliInfo['line']
-        kematri.addClient()
-        print(f'conn is {conn}')
-        connshort = conn.getpeername()
-        if connshort[0] == '127.0.0.1':
-            connshort = ('localhost',connshort[1])
-        if repliInfo['role'] == 'slave':
-            ownedby = repliInfo.get('replicaof')[0], int(repliInfo.get('replicaof')[1]) 
-            print(f'ownedby {ownedby}, connshort is {connshort}')
-            if ownedby == connshort:
-                print('yep, the connection is to master')
-                print(f'argums.replicaof is {argums.replicaof}')
-                handshake(argums.replicaof)
-            else:
-                print('nope, this connection is not to master')
 
-        #thr = threading.Thread(target=handshake, args=(argums.replicaof,))
-        #thr.start()
+        #print(f'responds[portNo] are {responds.get(portNo)}')
+        kematri.addClient()
+        #print('connection is', conn, 'reNo is', reNo)
+
+        #main loop
         while True:
             data = conn.recv(4096)
             if data:
+                #print('data is', data)
                 #timeIn = datetime.now()
-                print(f'received data {data} from {conn.getpeername()}')
-                inline = app.respParse.decode_resp(data)
-                print(f'received inline {inline} from {conn.getpeername()}')
+                command_list = app.respParse.decode_resp(data)
+                #print(f'reNo {reNo}: inline is', inline)
+                #print(f'type(inline) is {type(inline)}')
 
-###to propagate or no ###
-
-
-### parsing the command sequence
-
-                #todo independent threads for adding to command buffer and executing it
-                #todo use cmdQ as command buffer 
-                print(f'parsing inline {inline}')
-                if is_command(inline):
-                    inline = [inline]
-                print(f'enclosed the inline, it is now {inline}')
-
-                while inline and is_command(inline[0]):
-                    current_inline = inline[0]
-                    del inline[0]
-                    print(f'processing {current_inline}')
-                    cmd = current_inline[0].lower()
-                    #if the command shouldn't be propagated:
-                    reps = repliDict[reNo].get('replicas') 
-                    if reps != None and cmd in writeCommands:
+                for inline in command_list:
+                    res = exCmd(inline, reNo, conn)
+                    reps = repliDict[reNo].get('replicae') 
+                    if type(inline) == list: #todo this should only be done once
+                        cmd = inline[0].lower()
+                    else:
+                        cmd = inline
+                    #propagate condition
+                    if reps != None and cmd in writeCommands: #todo wow hacky, need list of propagatables
+                        #actually, need a command class, and propagatable attribute
                         for i in reps:
-                            propagated_command = ' '.join(current_inline)
-                            #print('propagating the command', propagated_command,'to the replica', i)
-                            sendCmd(propagated_command, i) 
-                    res = exCmd(current_inline, reNo, conn)
-                    send_result(res, conn, reNo)
-                    #todo consistent order: data, conn, reNo 
-                if inline: 
-                    print('Command Sequence Error:', inline, 'is not a valid command sequence')
-
-
-                #elif not cmd in writeCommands:
-                    #print('the command', cmd,'is not a write command')
-                #else:
-                    #print('no replicas')
-                    
-                # if master -- need to keep track of the replica connections
-                # after exCmd --- need to propagate
-
-###                outline = app.respParse.encode_out(res)
-###                if not isinstance(outline, list):
-###                    outline = [outline]
-###                for i in outline: #for the commands that send multiple messages
-###                    print(f'reNo {reNo}, sending {i}')
-###                    conn.send(i)
-###                    #print(f'repliDict is {repliDict}')
-
+                            propagated_command = ' '.join(inline)
+                            #print('sending', propagated_command, 'to', i)
+                            sendCmd(propagated_command, i)
+                    # if master -- need to keep track of the replica connections
+                    # after exCmd --- need to propagate
+                    outline = app.respParse.encode_out(res)
+                    #print('outline is', outline)
+                    if not isinstance(outline, list):
+                        outline = [outline]
+                    noResponse = True if conn == repliDict[reNo].get('master_connection') and cmd in writeCommands else False
+                    if not noResponse: #todo what if replica gets a command from someone else?
+                        for i in outline: #for the commands that send multiple messages
+                            #print('sending', i)
+                            conn.send(i)
 
 
     #######################
     #parsing arguments
     #######################
 
-    if argums.port:
-        portNo = int(argums.port)
+    if args.port:
+        portNo = int(args.port)
     else:
         portNo = 6379
 
     repliInfo = {}
-    repliInfo['line'] = ''
 
-    server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
-
-    if argums.replicaof:
-        #print('initially,  the replicaof argums are',  argums.replicaof)
+    if args.replicaof:
+        #print('initially, the replicaof args are', args.replicaof)
         role = repliInfo['role'] = 'slave'
-        o = argums.replicaof.split(' ')
-        #if o[0] == 'localhost':
-        #    o[0] = '127.0.0.1'
-        ownedby = (o[0], int(o[1]))
-        #print(f'ownedby is {ownedby}')
-        repliInfo['replicaof'] = ownedby
-        repliInfo['line'] = 'replica of ' + str(repliInfo.get('replicaof'))
-        master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
-        thr = threading.Thread(target=respond, args=(master_connection,))
+        thr = threading.Thread(target=replica_handshake, args=(args.replicaof,))
         thr.start()
-        #thr = threading.Thread(target=handshake, args=(argums.replicaof,))
-        #thr.start()
     else:
         role = repliInfo['role'] = 'master'
         repliInfo['master_replid'] = random_id(40)
         repliInfo['master_repl_offset'] = 0
         repliInfo['replicas'] = []
-        repliInfo['line'] = 'master of'
+
     
-        repliLine = repliInfo['line']
-        #print(f'repliInfo[\'line\'] is {repliLine}')
+
+        #outline = app.respParse.encode_out(('PING', 'array'))
+        #print(f'outline is {outline}')
+        #slocket.send(outline)
+
+    server_socket = socket.create_server(("localhost", portNo), reuse_port=True)
 
 
-    #print('main loop: listening')
+
+
+
     while True:
         connection, _ = server_socket.accept()
         if not connection:
             break
-        #print('got the connection', connection)
-        thr = threading.Thread(target=respond, args=(connection,))
+        thr = threading.Thread(target=respond, args=(connection,role,))
         thr.start()
     
     

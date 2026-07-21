@@ -1,114 +1,101 @@
-
+#wew lad I'll need to split the string by commands??? dang
 import re
 
-# v/\(RPUSH\|PING\|GET\|SET\|LRANGE\|ECHO\|LPUSH\|LPOP\|LLEN\|TYPE\|XADD\|XRANGE\|XREAD\|MULTI\|EXEC\|INCR\|DISCARD\|WATCH\|REPLCONF\|INFO\|PSYNC\|FULLRESYNC\)/visual
+prefix_dict = {
+        '+' : 'simple string',
+        '-' : 'error',
+        ':' : 'integer',
+        '$' : 'bulk string OR an rdb file',
+        '*' : 'array'
+        }
 
-prefline = '-:$'
-command_list =['RPUSH', 'PING', 'GET', 'SET', 'LRANGE', 'ECHO', 'LPUSH',
-               'LPOP', 'LLEN', 'TYPE', 'XADD', 'XRANGE', 'XREAD', 'MULTI',
-               'EXEC', 'INCR', 'DISCARD', 'WATCH', 'REPLCONF', 'INFO', 'PSYNC',
-               'FULLRESYNC']
+prefices_string = "".join(prefix_dict)
+for i in prefices_string:
+    print(f'{i} is a prefix')
+prefix_pattern =f'([{prefices_string}]\\d+\\\\r\\\\n|[+-])'
+print(f'prefix_pattern is {prefix_pattern}')
+prefix_regexp = re.compile(prefix_pattern)
+print(f'prefix_regexp is {prefix_regexp}')
 
-def parse_rdb(rdb_string):
-    return("RBD to be parsed")
-
-
-def parse_element(groups, elements):
-    #print(f'groups is {groups}')
-    #print(f'elements is {elements}')
-    current = elements[0]
-    #print(f'current is {current}')
-    del elements[0]
-    if not current:
+def decode_resp(byteline):
+    print(f'byteline is {byteline}')
+    try:
+        inline = byteline.decode("utf-8")
+        inline=inline.encode('unicode_escape').decode()
+    except:
+        print('couldn\'t decode')
         return
-    if current == b'$88' and elements[0][:5] == b'REDIS':
-        groups.append(parse_rdb(current + elements[0]))
-        del elements[0]
-        return
-    indicator = chr(current[0])
-    #print(f'indicator is {indicator}')
-    if current == b'*1':
-        return
-    if indicator in prefline:
-        #print('normal prefix')
-        groups.append(elements[0].decode("utf-8"))
-        del elements[0]
-    elif indicator == '+':
-        groups.append(current.decode("utf-8")[1:])
-
-    elif indicator == '*':
-        #print('array prefix')
-        groups.append([])
-        array_length = int(current[1:].decode("utf-8"))
-        for i in range(array_length): 
-            parse_element(groups[-1], elements)
-    else:
-        #print('no prefix')
-        try:
-            groups[-1].append(current.decode("unicode-escape"))
-        except:
-            groups.append(current.decode("unicode-escape"))
-
-    return
-
-def decode_resp(inline):
-    #print(f'decoding inline {inline}')
     res = []
-    moreparts = inline.split(b'\r\n') 
-    #print(f'moreparts is {moreparts}')
-
-    while moreparts:
-        parse_element(res, moreparts)
-        #print(f'res is {res}')
-        #print(f'moreparts is {moreparts}')
-    
-    # old decoding returned a list, but not a list of a single list?
-    while len(res) == 1 and isinstance(res[0], list):
-        #print('extracting res', res)
-        res = res[0]
-    print('decoded',res)
+    line_list = split_resp(inline)
+    print(f'line_list is {line_list}')
+    for line in line_list:
+        print(f'line is {line}')
+        decoded_line = decode_single(line)
+        print(f'decoded {line} is {decoded_line}')
+        res.append(decoded_line)
+        print(f'res is {res}')
     return(res)
 
-### command patterns ###
-def old_decode(inline):
-    #return alt_decode(inline)
-    #print(f'normal decoding inline {inline}')
-    prefix = chr(inline[0]) #chr -- converts single byte char to actual char
+def split_resp(inline):
+    print(f'inline is {inline}')
+    print(f'delimiters are {prefix_regexp.findall(inline)}')
+    parts_list = re.split(prefix_regexp, inline)[1:]
+    print(f'parts_list is {parts_list}')
+    print(f'len(parts_list) is {len(parts_list)}')
+    if len(parts_list) % 2 == 1:
+        parts_list.append('')
+    line_list = []
+    for i in range(0, len(parts_list), 2):
+        line_list.append(parts_list[i] + parts_list[i+1])
+    return(line_list)
+
+def decode_single(inline):
+    print(f'decoding single inline {inline}')
+    #prefix = chr(inline[0]) #chr -- converts single byte char to actual char
+    # prev line -- from when it still was a byte
+    prefix = inline[0]
     res = None
+    print(f'prefix is {prefix}, got {prefix_dict.get(prefix)}')
     if prefix == '+': #simple string
-        #print('simple string start')
-        dangerous = inline[0:11] ### if it's fullresync --
-        # do nothing
-        #print(f'dangerous is {dangerous}')
-        if dangerous == b'+FULLRESYNC':
-            return('haha! fullresync')
-        #todo parse rdb files
-        #todo parse multiple commands
-        #print('got a simple string')
-        return inline.decode("utf-8")[1:-2]
+        #print('got a simple string', inline )
+        intro = inline[0:11]
+        print(f'intro is {intro}')
+        if intro == b'+FULLRESYNC':
+            print(r'wow that\'s bad I\'ll process fullresync later')
+            return ['fullresync'] 
+        else:
+            return inline[1:-2] #error: there's rdb, so can't decode?
+            #return inline.decode("utf-8")[1:-2] #error: there's rdb, so can't decode?
         #return inline.decode("utf-8")[1:-4]
+        return inline[1:-4]
         #have I even been decoding simple strings at any point?
     elif prefix =='-': #error
-        return inline.decode("utf-8")[1:-4]
+        return inline[1:-4]
+        #return inline.decode("utf-8")[1:-4]
     elif prefix ==':': #int
         if inline[1] == '+':
-            return int(inline.decode("utf-8")[2:-4])
+            #return int(inline.decode("utf-8")[2:-4])
+            return int(inline[2:-4])
         else:
-            return int(inline.decode("utf-8")[1:-4])
+            #return int(inline.decode("utf-8")[1:-4])
+            return int(inline[1:-4])
     elif prefix =='$': #bulk string
-        return('haha! bulk string')
         inStr = inline.split(b'\r\n')[1]
+        print(f'inStr is {inStr}')
+        #print('got a bulk string', inStr)
         if inStr == b'':
             return ''
         else:
-            return inStr[1].decode("utf-8")
+            return inStr[1]
+            #return inStr[1].decode("utf-8")
     elif prefix =='*': #array
         res = []
         lines = inline.split(b'\r\n')
-        #print('lines are', lines)
+        #print(lines)
         count = int(lines[0][1:])
         for i in range(count):
-            res.append(lines[2*i+2].decode("utf-8"))
+            res.append(lines[2*i+2])
+            #res.append(lines[2*i+2].decode("utf-8"))
         return res
 
 def enSimple(toSend):

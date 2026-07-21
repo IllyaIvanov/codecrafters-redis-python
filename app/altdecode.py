@@ -1,78 +1,39 @@
-data = b'+PONG\r\n'
-parts = data.split(b'\r\n')
-print(parts)
 
-##import re
-##import respParse
-##
-##prefline = '+-:$'
-##line = b'*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\n123\r\n*3\r\n$3\r\nSET\r\n$3\r\nbar\r\n$3\r\n456\r\n*3\r\n$3\r\nSET\r\n$3\r\nbaz\r\n$3\r\n789\r\n'
-##line = b'*1\r\n$4\r\nPING\r\n'
-##
-##def parse_element(groups, elements):
-##    #print(f'groups is {groups}')
-##    #print(f'elements is {elements}')
-##    current = elements[0]
-##    #print(f'current is {current}')
-##    del elements[0]
-##    if not current:
-##        return
-##    indicator = chr(current[0])
-##    #print(f'indicator is {indicator}')
-##    if indicator in prefline:
-##        #print('normal prefix')
-##        groups.append(elements[0].decode("utf-8"))
-##        del elements[0]
-##    elif indicator == '*':
-##        #print('array prefix')
-##        groups.append([])
-##        array_length = int(current[1:].decode("utf-8"))
-##        for i in range(array_length): 
-##            parse_element(groups[-1], elements)
-##    else:
-##        #print('no prefix')
-##        groups[-1].append(current.decode("utf-8"))
-##    return
-##
-##parts = line.split(b'\r\n')
-##print(f'parts is {parts}\n')
-##
-##moreparts = parts
-##grouped = []
-##
-##while moreparts:
-##    parse_element(grouped, moreparts)
-##
-##print(grouped)
+import re
+import respParse
 
-
-
-
-
+line = b'*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\n123\r\n*3\r\n$3\r\nSET\r\n$3\r\nbar\r\n$3\r\n456\r\n*3\r\n$3\r\nSET\r\n$3\r\nbaz\r\n$3\r\n789\r\n'
 # +-:$*
-#prefix_pattern = b'[$:+\-*]\d*\\r\\n'
+prefix_pattern = b'[$:+\-*]\d*\\r\\n'
 #prefix_separator = re.compile(prefix_pattern)
 #prefix_matches = prefix_separator.findall(line)
 #print(f'prefix_matches is {prefix_matches} \n')
 
-#command_list =[b'RPUSH', b'PING', b'GET', b'SET', b'LRANGE', b'ECHO', b'LPUSH', b'LPOP', b'LLEN', b'TYPE', b'XADD', b'XRANGE', b'XREAD', b'MULTI', b'EXEC', b'INCR', b'DISCARD', b'WATCH', b'REPLCONF', b'INFO', b'PSYNC', b'FULLRESYNC']
 
-#command_pattern =b'(?:' +  b'|'.join(command_list) + b')'
+command_list =[b'RPUSH', b'PING', b'GET', b'SET', b'LRANGE', b'ECHO', b'LPUSH',
+               b'LPOP', b'LLEN', b'TYPE', b'XADD', b'XRANGE', b'XREAD', b'MULTI',
+               b'EXEC', b'INCR', b'DISCARD', b'WATCH', b'REPLCONF', b'INFO', b'PSYNC',
+               b'FULLRESYNC']
+
+command_pattern =b'(?:' +  b'|'.join(command_list) + b')'
 
 #print(f'command_pattern is {command_pattern}')
-#complete_pattern = b'(' + prefix_pattern + command_pattern + b')'
+complete_pattern = b'(' + prefix_pattern + command_pattern + b')'
 #print(f'complete_pattern is {complete_pattern}')
-#command_separator = re.compile(complete_pattern) #regexp pattern
+command_separator = re.compile(complete_pattern) #regexp pattern
 
 
-#matches = command_separator.findall(line)
+matches = command_separator.findall(line)
 #print(f'matches is {matches} \n')
 
 #parts = command_separator.split(line)
+parts = line.split(b'\r\n')
+print(f'parts is {parts}\n')
 
-#inline = respParse.decode_resp(line)
-#print('inline: ', inline, '\n')
-#print('\n')
+
+inline = respParse.decode_resp(line)
+print('inline: ', inline, '\n')
+print('\n')
 
 #def messingwithregex():
 #    #patt_excl = re.compile(b'[+*-:$]') #regexp pattern

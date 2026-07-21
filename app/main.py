@@ -34,7 +34,9 @@ empty_rdb64 = 'UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCb
 rdb_bin = b64decode(empty_rdb64) 
 
 writeCommands = ['set', 'del'] 
-command_list =['UNWATCH','BLPOP', 'RPUSH', 'PING', 'GET', 'SET', 'LRANGE', 'ECHO', 'LPUSH', 'LPOP', 'LLEN', 'TYPE', 'XADD', 'XRANGE', 'XREAD', 'MULTI', 'EXEC', 'INCR', 'DISCARD', 'WATCH', 'REPLCONF', 'INFO', 'PSYNC', 'FULLRESYNC']
+command_list =['unwatch','blpop', 'rpush', 'ping', 'get', 'set', 'lrange', 'echo', 'lpush', 'lpop', 'llen', 'type', 'xadd', 'xrange', 'xread', 'multi', 'exec', 'incr', 'discard', 'watch', 'replconf', 'info', 'psync', 'fullresync','rdb']
+
+blankCommands = ['fullresync', 'rdb']
 
 #logname = './redislog_' + time.strftime("%Y-%m-%d_%H:%M") + '.txt'
 
@@ -60,7 +62,9 @@ def send_result(res, conn, reNo):
         #print(f'repliDict is {repliDict}')
 
 def is_command(someinput):
-    if isinstance(someinput, list) and someinput[0] in command_list:
+    if not isinstance(someinput[0], str):
+        return False
+    if isinstance(someinput, list) and someinput[0].lower() in command_list:
         print(someinput,' is a command')
         return True
     else:
@@ -338,7 +342,9 @@ def main():
         if type(inline) == list:
             cmd = inline[0].lower()
         else:
-            cmd = inline
+            cmd = inline 
+        print(f'cmd is {cmd}')
+
 
         if cmd == 'allgood':
             return('All good!', 'simple_string')
@@ -819,8 +825,12 @@ def main():
             return(res,'bulk_string')
 
         elif cmd == 'replconf':
-            #master_connection = socket.create_connection((ownedby[0], int(ownedby[1])))
-            return('OK','simple_string')
+            print('replconf inline is', inline)
+            print(inline[1])
+            if inline[1] == 'GETACK':
+                return ('REPLCONF ACK 0', 'array')
+            else: 
+                return('OK','simple_string')
 
         elif cmd == 'psync':
             res1 = 'FULLRESYNC ' + str(repliDict[reNo]['master_replid']) + ' ' + str(0)
@@ -836,6 +846,9 @@ def main():
             repliInfo['line'] += f', {sender.getpeername()}'
             #print(f'conn.getpeername() is {conn.getpeername()}')
             return(res, 'result_sequence')
+
+        elif cmd in blankCommands:
+            return
 
         else:
             return('ERR Unknown command', 'simple_error')
@@ -897,7 +910,7 @@ def main():
                 while inline and is_command(inline[0]):
                     current_inline = inline[0]
                     del inline[0]
-                    print(f'processing {current_inline}')
+                    print(f'\n processing {current_inline}')
                     cmd = current_inline[0].lower()
                     #if the command shouldn't be propagated:
                     reps = repliDict[reNo].get('replicas') 

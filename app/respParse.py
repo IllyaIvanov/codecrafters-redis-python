@@ -7,36 +7,60 @@ prefline = '-:$'
 command_list =['RPUSH', 'PING', 'GET', 'SET', 'LRANGE', 'ECHO', 'LPUSH',
                'LPOP', 'LLEN', 'TYPE', 'XADD', 'XRANGE', 'XREAD', 'MULTI',
                'EXEC', 'INCR', 'DISCARD', 'WATCH', 'REPLCONF', 'INFO', 'PSYNC',
-               'FULLRESYNC']
+               'FULLRESYNC', 'REPLCONF']
 
 def parse_rdb(rdb_string):
-    return("RBD to be parsed")
-
+    return(["RDB"])
 
 def parse_element(groups, elements):
-    #print(f'groups is {groups}')
-    #print(f'elements is {elements}')
+    print('\n')
+    
+    print('Before parsing,')
+    print(f'groups is {groups}')
+    print(f'and elements is {elements}')
+    if (len(elements) == 0
+        or len(elements) == 1 and not elements[0]):
+            print("parse_element error: elements is empty")
+            return(groups, None)
     current = elements[0]
+    print(f'current is {current}')
     #print(f'current is {current}')
     del elements[0]
-    if not current:
-        return
     if current == b'$88' and elements[0][:5] == b'REDIS':
         groups.append(parse_rdb(current + elements[0]))
         del elements[0]
-        return
+        return(groups, elements)
     indicator = chr(current[0])
     #print(f'indicator is {indicator}')
     if current == b'*1':
-        return
-    if indicator in prefline:
+        return(groups, elements)
+    elif indicator == '+':
+        if current[0:11] == b'+FULLRESYNC':
+            groups.append(['FULLRESYNC', current[12:].decode("utf-8")])
+        else:
+            groups.append(current.decode("utf-8")[1:])
+    elif indicator == '$':
+        print('bulk string, elements are ',elements)
+        if (len(elements) >= 3
+            and  elements[0] == b'REPLCONF' 
+            and elements[2] == b'GETACK'):
+                print(f'groups is {groups}')
+                print('appending replconf getack whatever')
+                groups.append(['REPLCONF', 'GETACK', elements[4]])
+                print(f'BUT! now groups is {groups}')
+                elements = elements[5:] 
+                print(f'and, after parsing, now elements are {elements}')
+        else:
+            print('just a bulk string, nothing to see here')
+            groups.append(elements[0].decode("utf-8"))
+            del elements[0]
+    elif indicator in prefline:
         #print('normal prefix')
         groups.append(elements[0].decode("utf-8"))
         del elements[0]
-    elif indicator == '+':
-        groups.append(current.decode("utf-8")[1:])
-
     elif indicator == '*':
+        if current == b'*':
+            return(groups, elements)
         #print('array prefix')
         groups.append([])
         array_length = int(current[1:].decode("utf-8"))
@@ -49,18 +73,24 @@ def parse_element(groups, elements):
         except:
             groups.append(current.decode("unicode-escape"))
 
-    return
+    print('After parsing one step,')
+    print("now groups are", groups)
+    print("and elements are", elements)
+    print('\n') 
+    return(groups, elements)
 
 def decode_resp(inline):
     #print(f'decoding inline {inline}')
     res = []
     moreparts = inline.split(b'\r\n') 
-    #print(f'moreparts is {moreparts}')
+    print(f'moreparts is {moreparts}')
 
     while moreparts:
-        parse_element(res, moreparts)
-        #print(f'res is {res}')
-        #print(f'moreparts is {moreparts}')
+        resandparts = parse_element(res, moreparts)
+        print(f'\nresandparts is {resandparts}')
+        res, moreparts = resandparts
+        print(f'res is {res}')
+        print(f'moreparts is {moreparts}\n')
     
     # old decoding returned a list, but not a list of a single list?
     while len(res) == 1 and isinstance(res[0], list):
